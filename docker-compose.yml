@@ -16,6 +16,23 @@ services:
     networks:
       - todo-network
 
+  # PostgreSQL Database for Testing
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: realtime-todo-postgres-test
+    restart: always
+    environment:
+      POSTGRES_DB: todoapp_test
+      POSTGRES_USER: JuPegro
+      POSTGRES_PASSWORD: Unicotrofeo1
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./backend/prisma/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - todo-network
+
   # pgAdmin for database management
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -57,6 +74,7 @@ services:
 
 volumes:
   postgres_data:
+  postgres_test_data:
 
 networks:
   todo-network:
