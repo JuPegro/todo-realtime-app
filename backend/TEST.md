@@ -1,8 +1,8 @@
-# 🧪 Testing Setup - Backend
+# Testing Setup - Backend
 
 Este proyecto usa Jest para pruebas unitarias e integración con mocks de Prisma.
 
-## 🚀 Comandos de Testing
+## Comandos de Testing
 
 ```bash
 # Ejecutar todos los tests
@@ -21,7 +21,7 @@ npm run test:e2e
 npm run test:debug
 ```
 
-## 🗄️ Base de Datos de Testing
+## Base de Datos de Testing
 
 ### Setup automático
 ```bash
@@ -40,7 +40,7 @@ npm run test:db:reset
 - **BD:** todoapp_test
 - **Variables:** archivo `.env.test`
 
-## 🎭 Mocks y Helpers
+## Mocks y Helpers
 
 ### Prisma Mocks
 ```typescript
@@ -58,13 +58,13 @@ import { createTestingModule } from '../test/helpers/testing.helper';
 const { module, prisma } = await createTestingModule([YourService]);
 ```
 
-## 📊 Coverage
+## Coverage
 
 - **Objetivo mínimo:** 80% en todas las métricas
 - **Configurado en:** `package.json` jest.coverageThreshold
 - **Reportes:** generados en `/coverage`
 
-## 🏗️ Estructura de Tests
+## Estructura de Tests
 
 ```
 test/
@@ -79,7 +79,7 @@ src/
 └── **/*.e2e-spec.ts      # Tests E2E
 ```
 
-## ✅ Ejemplo de Test
+## Ejemplo de Test
 
 ```typescript
 import { Test } from '@nestjs/testing';
@@ -109,7 +109,7 @@ describe('UserService', () => {
 });
 ```
 
-## 🐞 Troubleshooting
+## Troubleshooting
 
 ### Tests lentos
 - Los mocks de Prisma pueden ser lentos en la primera ejecución

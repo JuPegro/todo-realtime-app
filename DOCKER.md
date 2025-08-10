@@ -1,8 +1,8 @@
-# 🐳 Docker Setup - Realtime Todo App
+# Docker Setup - Realtime Todo App
 
 Este proyecto utiliza Docker para una configuración fácil del entorno de desarrollo.
 
-## 🚀 Quick Start
+## Quick Start
 
 1. **Levantar todos los servicios:**
    ```bash
@@ -19,7 +19,7 @@ Este proyecto utiliza Docker para una configuración fácil del entorno de desar
    docker-compose exec backend npx prisma migrate deploy
    ```
 
-## 📊 Servicios Incluidos
+## Servicios Incluidos
 
 ### PostgreSQL Database
 - **Puerto:** 5432
@@ -39,7 +39,7 @@ Este proyecto utiliza Docker para una configuración fácil del entorno de desar
 - **Container:** `realtime-todo-backend`
 - **Health Check:** http://localhost:3000/health
 
-## 🛠️ Comandos Útiles
+## Comandos Útiles
 
 ### Desarrollo
 ```bash
@@ -77,21 +77,21 @@ docker-compose exec backend npx prisma studio
 docker-compose exec postgres pg_dump -U JuPegro todoapp > backup.sql
 ```
 
-## 🔧 Configuración
+## Configuración
 
 Las variables de entorno están configuradas en:
 - `backend/.env` - Para desarrollo local
 - `backend/.env.docker` - Para contenedores Docker
 - `docker-compose.yml` - Variables del compose
 
-## 🏥 Health Checks
+## Health Checks
 
 El backend incluye health checks automáticos:
 - **Intervalo:** 30 segundos
 - **Timeout:** 3 segundos
 - **Endpoint:** http://localhost:3000/health
 
-## 🐞 Troubleshooting
+## Troubleshooting
 
 ### La base de datos no se conecta
 ```bash
