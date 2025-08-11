@@ -3,3 +3,8 @@ node_modules
 .env
 
 /generated/prisma
+
+# Coverage reports
+backend/coverage/
+backend/coverage-e2e/
+frontend/coverage/
