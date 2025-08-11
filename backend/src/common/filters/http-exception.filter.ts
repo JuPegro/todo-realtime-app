@@ -39,24 +39,59 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       switch (exception.code) {
         case 'P2002':
-          message = 'Un registro con estos datos ya existe';
+          // Unique constraint violation
+          const target = exception.meta?.target as string[] || [];
+          if (target.includes('email')) {
+            message = 'El email ya está registrado';
+          } else {
+            message = 'Un registro con estos datos ya existe';
+          }
           status = HttpStatus.CONFLICT;
           break;
         case 'P2025':
-          message = 'Registro no encontrado';
+          // Record not found
+          message = 'Registro no encontrado o ya ha sido eliminado';
           status = HttpStatus.NOT_FOUND;
           break;
         case 'P2003':
-          message = 'Referencia inválida';
+          // Foreign key constraint violation
+          message = 'Referencia inválida - el registro relacionado no existe';
+          status = HttpStatus.BAD_REQUEST;
+          break;
+        case 'P2014':
+          // Required relation violation
+          message = 'Error de relación - datos requeridos faltantes';
+          status = HttpStatus.BAD_REQUEST;
+          break;
+        case 'P2023':
+          // Inconsistent column data
+          message = 'Datos inconsistentes en la base de datos';
+          status = HttpStatus.BAD_REQUEST;
+          break;
+        case 'P2001':
+          // Record does not exist
+          message = 'El registro que intentas acceder no existe';
+          status = HttpStatus.NOT_FOUND;
           break;
         default:
-          message = 'Error de base de datos';
+          message = `Error de base de datos (${exception.code})`;
+          this.logger.error(`Unhandled Prisma error: ${exception.code}`, exception.message);
           break;
       }
     } else if (exception instanceof Prisma.PrismaClientValidationError) {
       status = HttpStatus.BAD_REQUEST;
       error = 'Validation Error';
-      message = 'Datos inválidos';
+      message = 'Datos inválidos o formato incorrecto';
+    } else if (exception instanceof Prisma.PrismaClientInitializationError) {
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+      error = 'Database Connection Error';
+      message = 'Error de conexión con la base de datos';
+      this.logger.error('Prisma initialization error', exception.message);
+    } else if (exception instanceof Prisma.PrismaClientRustPanicError) {
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+      error = 'Database Critical Error';
+      message = 'Error crítico en la base de datos';
+      this.logger.error('Prisma rust panic error', exception.message);
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       error = 'Internal Server Error';
@@ -70,17 +105,44 @@ export class HttpExceptionFilter implements ExceptionFilter {
       method: request.method,
       error,
       message,
+      ...(process.env.NODE_ENV === 'development' && exception instanceof Error && {
+        stack: exception.stack,
+      }),
     };
 
-    // Log errors for monitoring
+    // Structured logging for monitoring
+    const logContext = {
+      method: request.method,
+      url: request.url,
+      statusCode: status,
+      userAgent: request.headers['user-agent'],
+      ip: request.ip,
+      userId: (request as any).user?.sub,
+      timestamp: new Date().toISOString(),
+      ...(exception instanceof Error && { 
+        errorName: exception.name,
+        errorMessage: exception.message,
+      }),
+    };
+
     if (status >= 500) {
       this.logger.error(
-        `${request.method} ${request.url} - ${status}`,
-        exception instanceof Error ? exception.stack : exception,
+        `Server Error: ${request.method} ${request.url} - ${status}`,
+        {
+          ...logContext,
+          stack: exception instanceof Error ? exception.stack : undefined,
+          exception: exception instanceof Error ? exception : String(exception),
+        },
+      );
+    } else if (status >= 400) {
+      this.logger.warn(
+        `Client Error: ${request.method} ${request.url} - ${status}`,
+        logContext,
       );
     } else {
-      this.logger.warn(
-        `${request.method} ${request.url} - ${status} - ${message}`,
+      this.logger.log(
+        `Request: ${request.method} ${request.url} - ${status}`,
+        logContext,
       );
     }
 
