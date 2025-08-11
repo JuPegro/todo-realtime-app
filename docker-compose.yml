@@ -3,7 +3,7 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: realtime-todo-postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_DB: todoapp
       POSTGRES_USER: JuPegro
@@ -12,7 +12,12 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/prisma/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U JuPegro -d todoapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - todo-network
 
@@ -54,21 +59,34 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      target: production
     container_name: realtime-todo-backend
-    restart: always
+    restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://JuPegro:Unicotrofeo1@postgres:5432/todoapp
-      JWT_SECRET: JuPegro_realtime_app
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production-min-32-chars-123456789
       JWT_EXPIRES_IN: 7d
       PORT: 3000
-      NODE_ENV: development
+      NODE_ENV: production
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: todoapp
+      POSTGRES_USER: JuPegro
+      POSTGRES_PASSWORD: Unicotrofeo1
+      CORS_ORIGIN: "*"
+      RATE_LIMIT_TTL: 60
+      RATE_LIMIT_REQUESTS: 100
     ports:
       - "3000:3000"
     depends_on:
-      - postgres
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     networks:
       - todo-network
 
