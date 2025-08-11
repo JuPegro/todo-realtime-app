@@ -75,38 +75,81 @@ const TaskItem: React.FC<TaskItemProps> = ({
       case 'low':
         return '#4CAF50';
       default:
-        return '#666';
+        return '#4CAF50';
     }
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'work':
-        return 'briefcase-outline';
-      case 'personal':
-        return 'person-outline';
+      case 'FEATURE':
+        return 'FEATURE';
+      case 'BUG_FIX':
+        return 'BUG FIX';
+      case 'REFACTOR':
+        return 'REFACTOR';
+      case 'TESTING':
+        return 'TESTING';
+      case 'DOCUMENTATION':
+        return 'DOCS';
+      case 'CODE_REVIEW':
+        return 'REVIEW';
+      case 'DEPLOYMENT':
+        return 'DEPLOY';
+      case 'RESEARCH':
+        return 'RESEARCH';
+      case 'OPTIMIZATION':
+        return 'OPTIMIZE';
+      case 'MAINTENANCE':
+        return 'MAINTENANCE';
       default:
-        return 'document-text-outline';
+        return type || 'TASK';
     }
   };
 
-  const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return null;
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'FEATURE':
+        return '#3B82F6'; // Azul claro
+      case 'BUG_FIX':
+        return '#1D4ED8'; // Azul fuerte
+      case 'REFACTOR':
+        return '#1E40AF'; // Azul oscuro
+      case 'TESTING':
+        return '#6366F1'; // Índigo azul
+      case 'DOCUMENTATION':
+        return '#0EA5E9'; // Azul cielo
+      case 'CODE_REVIEW':
+        return '#1E3A8A'; // Azul marino
+      case 'DEPLOYMENT':
+        return '#0F172A'; // Azul muy oscuro
+      case 'RESEARCH':
+        return '#2563EB'; // Azul medio
+      case 'OPTIMIZATION':
+        return '#0284C7'; // Azul cian
+      case 'MAINTENANCE':
+        return '#475569'; // Azul grisáceo
+      default:
+        return '#3B82F6';
+    }
   };
 
   const formatTime = (timeString: string | undefined) => {
-    if (!timeString) return null;
+    if (!timeString) return '10:00 AM';
     const time = new Date(timeString);
-    return time.toLocaleTimeString('es-ES', {
-      hour: '2-digit',
+    return time.toLocaleTimeString('en-US', {
+      hour: 'numeric',
       minute: '2-digit',
+      hour12: true,
     });
+  };
+
+  const getTimeRange = () => {
+    if (task.startTime && task.endTime) {
+      const startTime = formatTime(task.startTime);
+      const endTime = formatTime(task.endTime);
+      return `${startTime} - ${endTime}`;
+    }
+    return '11:30 - 9:30 AM';
   };
 
   return (
@@ -114,118 +157,79 @@ const TaskItem: React.FC<TaskItemProps> = ({
       style={[
         styles.container,
         task.completed && styles.completedContainer,
-        task.id.startsWith('temp-') && styles.optimisticContainer,
       ]}
       onPress={onPress}
       disabled={isUpdating || isDeleting}
     >
-      <View style={styles.leftSection}>
+      <View style={styles.content}>
+        <View style={styles.header}>
+          {showActions && (
+            <TouchableOpacity
+              style={styles.moreButton}
+              onPress={onEdit}
+              disabled={isUpdating || isDeleting}
+            >
+              <Ionicons name="ellipsis-vertical-outline" size={16} color="#999" />
+            </TouchableOpacity>
+          )}
+          <Text style={[styles.priorityLabel, { color: getTypeColor(task.type) }]}>
+            {getTypeLabel(task.type)}
+          </Text>
+        </View>
+        
+        <View style={styles.dividerLine} />
+
+        <View style={styles.titleContainer}>
+          <View style={[styles.colorLine, { backgroundColor: getTypeColor(task.type) }]} />
+          <View style={styles.textContent}>
+            <Text style={styles.title} numberOfLines={2}>
+              {task.title}
+            </Text>
+
+            {task.description && (
+              <Text style={styles.description} numberOfLines={2}>
+                {task.description}
+              </Text>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.footer}>
+          <View style={styles.timeContainer}>
+            <Ionicons name="time-outline" size={14} color="#999" />
+            <Text style={styles.timeText}>{getTimeRange()}</Text>
+          </View>
+          
+          <View style={styles.personContainer}>
+            <Ionicons name="person-outline" size={14} color="#999" />
+            <Text style={styles.personText}>{task.user.name || 'Usuario'}</Text>
+          </View>
+        </View>
+
+        {task.completed && (
+          <View style={styles.completedOverlay}>
+            <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+            <Text style={styles.completedText}>Completada</Text>
+          </View>
+        )}
+      </View>
+
+      {showActions && (
         <TouchableOpacity
-          style={styles.checkboxContainer}
+          style={styles.toggleButton}
           onPress={handleToggleComplete}
           disabled={isUpdating}
         >
           {isUpdating ? (
-            <ActivityIndicator size="small" color="#007AFF" />
+            <ActivityIndicator size="small" color="#6366F1" />
           ) : (
             <Ionicons
               name={task.completed ? 'checkmark-circle' : 'ellipse-outline'}
-              size={24}
+              size={20}
               color={task.completed ? '#4CAF50' : '#CCC'}
             />
           )}
         </TouchableOpacity>
-
-        <View style={styles.contentContainer}>
-          <View style={styles.headerRow}>
-            <Text
-              style={[
-                styles.title,
-                task.completed && styles.completedText,
-              ]}
-              numberOfLines={2}
-            >
-              {task.title}
-            </Text>
-            <View style={styles.metadataRow}>
-              <View
-                style={[
-                  styles.priorityBadge,
-                  { backgroundColor: getPriorityColor(task.priority) },
-                ]}
-              >
-                <Text style={styles.priorityText}>
-                  {task.priority.toUpperCase()}
-                </Text>
-              </View>
-              <Ionicons
-                name={getTypeIcon(task.type)}
-                size={16}
-                color="#666"
-                style={styles.typeIcon}
-              />
-            </View>
-          </View>
-
-          {task.description && (
-            <Text
-              style={[
-                styles.description,
-                task.completed && styles.completedText,
-              ]}
-              numberOfLines={2}
-            >
-              {task.description}
-            </Text>
-          )}
-
-          <View style={styles.timeInfo}>
-            {task.taskDate && (
-              <Text style={styles.dateText}>
-                📅 {formatDate(task.taskDate)}
-              </Text>
-            )}
-            {task.startTime && task.endTime && (
-              <Text style={styles.timeText}>
-                🕐 {formatTime(task.startTime)} - {formatTime(task.endTime)}
-              </Text>
-            )}
-          </View>
-
-          <View style={styles.bottomRow}>
-            <Text style={styles.authorText}>
-              {task.user.name}
-            </Text>
-            {task.completed && task.completedBy && (
-              <Text style={styles.completedByText}>
-                ✓ {task.completedBy.name}
-              </Text>
-            )}
-          </View>
-        </View>
-      </View>
-
-      {showActions && (
-        <View style={styles.actionsContainer}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={onEdit}
-            disabled={isUpdating || isDeleting}
-          >
-            <Ionicons name="create-outline" size={20} color="#007AFF" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.deleteButton]}
-            onPress={handleDelete}
-            disabled={isUpdating || isDeleting}
-          >
-            {isDeleting ? (
-              <ActivityIndicator size="small" color="#FF4444" />
-            ) : (
-              <Ionicons name="trash-outline" size={20} color="#FF4444" />
-            )}
-          </TouchableOpacity>
-        </View>
       )}
     </TouchableOpacity>
   );
@@ -235,119 +239,121 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
     borderRadius: 12,
-    padding: 16,
-    marginHorizontal: 16,
+    marginHorizontal: 20,
     marginVertical: 6,
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
   completedContainer: {
     opacity: 0.7,
-    backgroundColor: '#F8F8F8',
   },
-  optimisticContainer: {
-    opacity: 0.6,
-    borderWidth: 1,
-    borderColor: '#DDD',
-    borderStyle: 'dashed',
-  },
-  leftSection: {
+  content: {
     flex: 1,
-    flexDirection: 'row',
+    padding: 16,
   },
-  checkboxContainer: {
-    paddingRight: 12,
-    paddingTop: 2,
-  },
-  contentContainer: {
-    flex: 1,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 4,
-  },
-  title: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginRight: 8,
-  },
-  completedText: {
-    textDecorationLine: 'line-through',
-    color: '#999',
-  },
-  metadataRow: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 8,
   },
-  priorityBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    marginRight: 6,
+  priorityLabel: {
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 2,
   },
-  priorityText: {
-    color: 'white',
-    fontSize: 10,
-    fontWeight: 'bold',
+  moreButton: {
+    padding: 4,
+    marginRight: 8,
   },
-  typeIcon: {
-    marginLeft: 4,
+  dividerLine: {
+    height: 1,
+    width: '100%',
+    backgroundColor: '#E5E7EB',
+    marginBottom: 12,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  colorLine: {
+    width: 3,
+    height: 60,
+    borderRadius: 2,
+    marginRight: 12,
+  },
+  textContent: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1F2937',
+    lineHeight: 24,
+    marginBottom: 4,
   },
   description: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-    lineHeight: 20,
+    fontSize: 13,
+    color: '#9CA3AF',
+    lineHeight: 18,
   },
-  timeInfo: {
-    marginBottom: 8,
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  dateText: {
-    fontSize: 12,
-    color: '#888',
-    marginBottom: 2,
+  timeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   timeText: {
     fontSize: 12,
-    color: '#888',
-  },
-  bottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  authorText: {
-    fontSize: 12,
-    color: '#999',
-    fontStyle: 'italic',
-  },
-  completedByText: {
-    fontSize: 12,
-    color: '#4CAF50',
+    color: '#6B7280',
+    marginLeft: 6,
     fontWeight: '500',
   },
-  actionsContainer: {
+  personContainer: {
     flexDirection: 'row',
-    marginLeft: 12,
+    alignItems: 'center',
   },
-  actionButton: {
-    padding: 8,
-    marginLeft: 4,
+  personText: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginLeft: 6,
+    fontWeight: '500',
   },
-  deleteButton: {
-    // Additional styling for delete button if needed
+  completedOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  completedText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4CAF50',
+    marginLeft: 8,
+  },
+  toggleButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    padding: 4,
   },
 });
 

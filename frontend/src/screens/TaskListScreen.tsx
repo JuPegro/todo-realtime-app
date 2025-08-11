@@ -10,7 +10,9 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTask } from '../context/TaskContext';
 import { useAuth } from '../context/AuthContext';
@@ -189,97 +191,24 @@ const TaskListScreen: React.FC<TaskListScreenProps> = ({ navigation }) => {
     );
   };
 
-  const renderHeader = () => (
-    <View style={styles.header}>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar tareas..."
-          value={searchText}
-          onChangeText={setSearchText}
-          returnKeyType="search"
-        />
-        {searchText.length > 0 && (
-          <TouchableOpacity
-            onPress={() => setSearchText('')}
-            style={styles.clearButton}
-          >
-            <Ionicons name="close-circle" size={20} color="#666" />
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {/* Status Filters */}
-      <View style={styles.filtersContainer}>
+  const renderSearchBar = () => (
+    <View style={styles.searchContainer}>
+      <Ionicons name="search" size={20} color="#666" />
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Buscar tareas..."
+        value={searchText}
+        onChangeText={setSearchText}
+        returnKeyType="search"
+      />
+      {searchText.length > 0 && (
         <TouchableOpacity
-          style={[
-            styles.filterButton,
-            activeFilter === 'all' && styles.filterButtonActive
-          ]}
-          onPress={() => handleFilterChange('all')}
+          onPress={() => setSearchText('')}
+          style={styles.clearButton}
         >
-          <Text style={[
-            styles.filterButtonText,
-            activeFilter === 'all' && styles.filterButtonTextActive
-          ]}>
-            Todas ({filteredTasks.length})
-          </Text>
+          <Ionicons name="close-circle" size={20} color="#666" />
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            activeFilter === 'pending' && styles.filterButtonActive
-          ]}
-          onPress={() => handleFilterChange('pending')}
-        >
-          <Text style={[
-            styles.filterButtonText,
-            activeFilter === 'pending' && styles.filterButtonTextActive
-          ]}>
-            Pendientes ({filteredTasks.filter(t => !t.completed).length})
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            activeFilter === 'completed' && styles.filterButtonActive
-          ]}
-          onPress={() => handleFilterChange('completed')}
-        >
-          <Text style={[
-            styles.filterButtonText,
-            activeFilter === 'completed' && styles.filterButtonTextActive
-          ]}>
-            Completadas ({filteredTasks.filter(t => t.completed).length})
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Priority Filters */}
-      <View style={styles.priorityFiltersContainer}>
-        {(['all', 'high', 'medium', 'low'] as const).map((priority) => (
-          <TouchableOpacity
-            key={priority}
-            style={[
-              styles.priorityFilterButton,
-              activePriorityFilter === priority && styles.priorityFilterButtonActive,
-              priority !== 'all' && { borderColor: getPriorityColor(priority) }
-            ]}
-            onPress={() => handlePriorityFilterChange(priority)}
-          >
-            <Text style={[
-              styles.priorityFilterText,
-              activePriorityFilter === priority && styles.priorityFilterTextActive
-            ]}>
-              {priority === 'all' ? 'Todas' : priority.toUpperCase()}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      )}
     </View>
   );
 
@@ -294,72 +223,68 @@ const TaskListScreen: React.FC<TaskListScreenProps> = ({ navigation }) => {
 
   return (
     <ErrorBoundary>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.screenTitle}>Mis Tareas</Text>
-          <Text style={styles.welcomeText}>Hola, {user?.name || user?.email}</Text>
-        </View>
-
-        {state.error && (
-          <ErrorMessage
-            message={state.error}
-            onRetry={() => {
-              clearError();
-              fetchTasks();
-            }}
-            onDismiss={clearError}
-          />
-        )}
-
-        <FlatList
-          data={filteredTasks}
-          renderItem={renderTaskItem}
-          keyExtractor={(item) => item.id}
-          ListHeaderComponent={renderHeader}
-          ListEmptyComponent={renderEmpty}
-          refreshControl={
-            <RefreshControl
-              refreshing={state.loading && state.tasks.length > 0}
-              onRefresh={handleRefresh}
-              colors={['#007AFF']}
-              tintColor="#007AFF"
-            />
-          }
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.1}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
-        />
-
-        {state.loading && state.tasks.length === 0 && (
-          <LoadingSpinner visible={true} message="Cargando tareas..." />
-        )}
-
-        {state.loading && state.tasks.length > 0 && (
-          <View style={styles.loadingMore}>
-            <LoadingSpinner visible={true} message="Cargando más..." />
+      <LinearGradient
+        colors={['#10243D', '#159DD9', '#2E70E8']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.container}
+      >
+        <StatusBar style="light" backgroundColor="transparent" translucent />
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.headerContent}>
+            <TouchableOpacity onPress={handleLogout} style={styles.backButton}>
+              <Ionicons name="menu" size={24} color="white" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Mis Tareas</Text>
+            <TouchableOpacity onPress={handleAddTask} style={styles.menuButton}>
+              <Ionicons name="add" size={24} color="white" />
+            </TouchableOpacity>
           </View>
-        )}
+        </SafeAreaView>
 
-        {/* Bottom Action Buttons */}
-        <View style={styles.bottomButtons}>
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={handleLogout}
-          >
-            <Ionicons name="log-out-outline" size={24} color="white" />
-            <Text style={styles.logoutButtonText}>Logout</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={styles.addTaskButton}
-            onPress={handleAddTask}
-          >
-            <Ionicons name="add" size={28} color="white" />
-            <Text style={styles.addTaskButtonText}>Nueva Tarea</Text>
-          </TouchableOpacity>
+        <View style={styles.content}>
+          {state.error && (
+            <ErrorMessage
+              message={state.error}
+              onRetry={() => {
+                clearError();
+                fetchTasks();
+              }}
+              onDismiss={clearError}
+            />
+          )}
+
+          <FlatList
+            data={filteredTasks}
+            renderItem={renderTaskItem}
+            keyExtractor={(item) => item.id}
+            ListHeaderComponent={renderSearchBar}
+            ListEmptyComponent={renderEmpty}
+            refreshControl={
+              <RefreshControl
+                refreshing={state.loading && state.tasks.length > 0}
+                onRefresh={handleRefresh}
+                colors={['#159DD9']}
+                tintColor="#159DD9"
+              />
+            }
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.1}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+          />
+
+          {state.loading && state.tasks.length === 0 && (
+            <LoadingSpinner visible={true} message="Cargando tareas..." />
+          )}
+
+          {state.loading && state.tasks.length > 0 && (
+            <View style={styles.loadingMore}>
+              <LoadingSpinner visible={true} message="Cargando más..." />
+            </View>
+          )}
         </View>
-      </SafeAreaView>
+      </LinearGradient>
     </ErrorBoundary>
   );
 };
@@ -367,162 +292,65 @@ const TaskListScreen: React.FC<TaskListScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
   },
-  titleContainer: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+  safeArea: {
+    paddingTop: 10,
   },
-  screenTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  welcomeText: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 4,
-  },
-  bottomButtons: {
+  headerContent: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: 'white',
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
   },
-  logoutButton: {
-    flex: 0.45,
-    flexDirection: 'row',
-    backgroundColor: '#FF4444',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+  backButton: {
+    padding: 8,
   },
-  logoutButtonText: {
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
     color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
   },
-  addTaskButton: {
-    flex: 0.45,
-    flexDirection: 'row',
-    backgroundColor: '#007AFF',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+  menuButton: {
+    padding: 8,
   },
-  addTaskButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  header: {
-    backgroundColor: 'white',
-    paddingVertical: 16,
-    marginBottom: 8,
+  content: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    marginTop: -20,
+    paddingTop: 30,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0F0F0',
-    borderRadius: 10,
-    marginHorizontal: 16,
-    marginBottom: 16,
-    paddingHorizontal: 12,
-  },
-  searchIcon: {
-    marginRight: 8,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   searchInput: {
     flex: 1,
-    paddingVertical: 12,
+    marginLeft: 12,
     fontSize: 16,
     color: '#333',
   },
   clearButton: {
     padding: 4,
   },
-  filtersContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    marginBottom: 12,
-  },
-  filterButton: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginHorizontal: 4,
-    borderRadius: 20,
-    backgroundColor: '#F0F0F0',
-    alignItems: 'center',
-  },
-  filterButtonActive: {
-    backgroundColor: '#007AFF',
-  },
-  filterButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#666',
-  },
-  filterButtonTextActive: {
-    color: 'white',
-  },
-  priorityFiltersContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    justifyContent: 'space-around',
-  },
-  priorityFilterButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: '#DDD',
-    backgroundColor: 'white',
-  },
-  priorityFilterButtonActive: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
-  },
-  priorityFilterText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#666',
-  },
-  priorityFilterTextActive: {
-    color: 'white',
-  },
   listContent: {
-    paddingBottom: 20,
+    paddingBottom: 100,
   },
   emptyContainer: {
     flex: 1,
@@ -547,7 +375,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   emptyButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#159DD9',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
