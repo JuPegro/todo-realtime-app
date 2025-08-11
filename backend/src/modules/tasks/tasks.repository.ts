@@ -161,7 +161,7 @@ export class TasksRepository implements ITaskRepository {
     };
   }
 
-  async update(id: string, data: UpdateTaskData, userId: string): Promise<ITask> {
+  async updateWithOwnership(id: string, data: UpdateTaskData, userId: string): Promise<ITask> {
     // Si se marca como completada, agregar datos de completado
     if (data.completed === true && !data.completedAt) {
       data.completedAt = new Date();
@@ -199,7 +199,7 @@ export class TasksRepository implements ITaskRepository {
     });
   }
 
-  async delete(id: string, userId: string): Promise<ITask> {
+  async deleteWithOwnership(id: string, userId: string): Promise<ITask> {
     return await this.prisma.task.delete({
       where: {
         id,
@@ -320,7 +320,7 @@ export class TasksRepository implements ITaskRepository {
     };
   }
 
-  async updateWithoutValidation(id: string, data: UpdateTaskData): Promise<ITask> {
+  async update(id: string, data: UpdateTaskData): Promise<ITask> {
     // Si se marca como completada, agregar datos de completado
     if (data.completed === true && !data.completedAt) {
       data.completedAt = new Date();
@@ -354,7 +354,7 @@ export class TasksRepository implements ITaskRepository {
     });
   }
 
-  async deleteWithoutValidation(id: string): Promise<ITask> {
+  async delete(id: string): Promise<ITask> {
     return await this.prisma.task.delete({
       where: { id },
       include: {
