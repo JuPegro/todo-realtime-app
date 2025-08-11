@@ -1,6 +1,8 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { TaskListScreen, AddTaskScreen } from '../screens';
+import TaskListScreen from '../screens/TaskListScreen';
+import AddTaskScreen from '../screens/AddTaskScreen';
+import EditTaskScreen from '../screens/EditTaskScreen';
 import { AppStackParamList } from '../types';
 
 const Stack = createStackNavigator<AppStackParamList>();
@@ -14,7 +16,22 @@ const AppNavigator: React.FC = () => {
       }}
     >
       <Stack.Screen name="TaskList" component={TaskListScreen} />
-      <Stack.Screen name="AddTask" component={AddTaskScreen} />
+      <Stack.Screen 
+        name="AddTask" 
+        component={AddTaskScreen}
+        options={{
+          presentation: 'modal',
+          animationTypeForReplace: 'push',
+        }}
+      />
+      <Stack.Screen 
+        name="EditTask" 
+        component={EditTaskScreen}
+        options={{
+          presentation: 'modal',
+          animationTypeForReplace: 'push',
+        }}
+      />
     </Stack.Navigator>
   );
 };
