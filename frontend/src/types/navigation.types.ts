@@ -1,3 +1,5 @@
+import { Task } from './task';
+
 export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -6,7 +8,8 @@ export type AuthStackParamList = {
 export type AppStackParamList = {
   TaskList: undefined;
   AddTask: undefined;
-  EditTask: { taskId: string };
+  EditTask: { task: Task };
+  TaskDetail: { taskId: string };
   Profile: undefined;
 };
 
