@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { TasksModule } from './modules/tasks/tasks.module';
 import configuration from './config/configuration';
 import { validate } from './config/env.validation';
 
@@ -17,6 +18,7 @@ import { validate } from './config/env.validation';
     }),
     AuthModule,
     UserModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
