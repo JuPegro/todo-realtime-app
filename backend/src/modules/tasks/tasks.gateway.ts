@@ -15,8 +15,10 @@ import { WsJwtAuthGuard } from '../auth/guards/ws-jwt-auth.guard';
 
 @WebSocketGateway({
   cors: {
-    origin: "*",
-  },
+    origin: ["http://localhost:8081", "exp://192.168.1.1:8081", "*"],
+    methods: ["GET", "POST"],
+    credentials: true
+  }
 })
 export class TasksGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -25,11 +27,11 @@ export class TasksGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private readonly tasksService: TasksService) {}
 
   handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
+    // Client connected
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
+    // Client disconnected
   }
 
   @UseGuards(WsJwtAuthGuard)
@@ -58,7 +60,8 @@ export class TasksGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      const task = await this.tasksService.update(data.id, data.updateTaskDto);
+      const userId = client.data.user.sub;
+      const task = await this.tasksService.update(data.id, data.updateTaskDto, userId);
       
       // Emitir a todos los clientes que se actualizó una tarea
       this.server.emit('task-updated', task);
@@ -76,7 +79,8 @@ export class TasksGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      const task = await this.tasksService.remove(data.id);
+      const userId = client.data.user.sub;
+      const task = await this.tasksService.remove(data.id, userId);
       
       // Emitir a todos los clientes que se eliminó una tarea
       this.server.emit('task-deleted', { id: data.id, task });

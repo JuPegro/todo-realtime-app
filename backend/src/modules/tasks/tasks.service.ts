@@ -33,7 +33,7 @@ export class TasksService {
     return await this.tasksRepository.create(taskData, userId);
   }
 
-  async findAll(query: TaskQueryDto): Promise<{
+  async findAll(query: TaskQueryDto, userId: string): Promise<{
     tasks: ITask[];
     total: number;
     page: number;
@@ -60,7 +60,7 @@ export class TasksService {
       }
     }
 
-    return await this.tasksRepository.findAllTasks(taskQuery);
+    return await this.tasksRepository.findMany(null, taskQuery); // Pasamos null en lugar de userId para traer todas las tareas
   }
 
   async findOne(id: string, userId: string): Promise<ITask> {
@@ -73,7 +73,7 @@ export class TasksService {
     return task;
   }
 
-  async update(id: string, updateTaskDto: UpdateTaskDto): Promise<ITask> {
+  async update(id: string, updateTaskDto: UpdateTaskDto, userId: string): Promise<ITask> {
     // Validar fechas si se proporcionan
     this.validateTaskDates(updateTaskDto.startTime, updateTaskDto.endTime);
 
@@ -89,15 +89,15 @@ export class TasksService {
     };
 
     try {
-      return await this.tasksRepository.updateWithoutValidation(id, updateData);
+      return await this.tasksRepository.update(id, updateData, userId);
     } catch (error) {
       throw new TaskNotFoundException(id);
     }
   }
 
-  async remove(id: string): Promise<ITask> {
+  async remove(id: string, userId: string): Promise<ITask> {
     try {
-      return await this.tasksRepository.deleteWithoutValidation(id);
+      return await this.tasksRepository.delete(id, userId);
     } catch (error) {
       throw new TaskNotFoundException(id);
     }
@@ -128,7 +128,7 @@ export class TasksService {
     byPriority: Record<string, number>;
     byType: Record<string, number>;
   }> {
-    const allTasks = await this.tasksRepository.findMany(userId, {
+    const allTasks = await this.tasksRepository.findMany(null, { // null para traer todas las tareas
       page: 1,
       limit: 1000, // Obtener todas las tareas para estadísticas
       sortBy: 'createdAt',

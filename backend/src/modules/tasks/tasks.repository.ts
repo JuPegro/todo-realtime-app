@@ -63,7 +63,7 @@ export class TasksRepository implements ITaskRepository {
     });
   }
 
-  async findMany(userId: string, query: TaskQuery): Promise<{
+  async findMany(userId: string | null, query: TaskQuery): Promise<{
     tasks: ITask[];
     total: number;
     page: number;
@@ -73,9 +73,12 @@ export class TasksRepository implements ITaskRepository {
     const skip = (query.page - 1) * query.limit;
     
     // Construir filtros dinámicos
-    const where: any = {
-      userId, // Solo las tareas del usuario
-    };
+    const where: any = {};
+    
+    // Solo filtrar por userId si se proporciona
+    if (userId) {
+      where.userId = userId;
+    }
 
     // Filtro por búsqueda de texto
     if (query.search) {
@@ -109,9 +112,16 @@ export class TasksRepository implements ITaskRepository {
       }
     }
 
-    // Ordenamiento dinámico
+    // Ordenamiento dinámico con validación
+    const validSortFields = ['id', 'title', 'description', 'completed', 'priority', 'type', 'taskDate', 'startTime', 'endTime', 'completedAt', 'createdAt', 'updatedAt', 'userId'];
+    const sortField = validSortFields.includes(query.sortBy) ? query.sortBy : 'createdAt';
+    
     const orderBy: any = {};
-    orderBy[query.sortBy] = query.sortOrder;
+    orderBy[sortField] = query.sortOrder;
+    
+    console.log('Query sortBy:', query.sortBy);
+    console.log('Validated sort field:', sortField);
+    console.log('OrderBy object:', orderBy);
 
     // Ejecutar consultas en paralelo
     const [tasks, total] = await Promise.all([
