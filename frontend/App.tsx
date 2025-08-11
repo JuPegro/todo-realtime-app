@@ -1,25 +1,49 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { TaskProvider } from './src/context/TaskContext';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import RootNavigator from './src/navigation/RootNavigator';
 import LoadingScreen from './src/components/LoadingScreen';
 import ErrorBoundary from './src/components/ErrorBoundary';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const { isDark, colors } = useTheme();
 
   if (isLoading) {
     return <LoadingScreen />;
   }
 
+  const navigationTheme = isDark ? {
+    ...DarkTheme,
+    colors: {
+      ...DarkTheme.colors,
+      background: colors.background,
+      card: colors.surface,
+      border: colors.border,
+      text: colors.text,
+    },
+  } : {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      background: colors.background,
+      card: colors.surface,
+      border: colors.border,
+      text: colors.text,
+    },
+  };
+
+  console.log('App - isDark:', isDark, 'navigationTheme.colors.background:', navigationTheme.colors.background);
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navigationTheme}>
       <TaskProvider>
         <RootNavigator isAuthenticated={isAuthenticated} />
       </TaskProvider>
-      <StatusBar style="auto" />
+      <StatusBar style={isDark ? "light" : "dark"} />
     </NavigationContainer>
   );
 };
@@ -27,9 +51,11 @@ const AppContent: React.FC = () => {
 export default function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

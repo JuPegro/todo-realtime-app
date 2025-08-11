@@ -41,6 +41,7 @@ export const API_BASE_URL = getApiBaseUrl();
 export const STORAGE_KEYS = {
   AUTH_TOKEN: '@realtime_todo:auth_token',
   USER_DATA: '@realtime_todo:user_data',
+  THEME: '@realtime_todo:theme',
 } as const;
 
 // Priority Colors

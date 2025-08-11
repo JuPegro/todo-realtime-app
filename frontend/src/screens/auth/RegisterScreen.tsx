@@ -17,6 +17,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParamList } from '../../types';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -26,6 +27,7 @@ type Props = StackScreenProps<AuthStackParamList, 'Register'>;
 
 const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const { register, isLoading } = useAuth();
+  const { colors, isDark, toggleTheme } = useTheme();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -117,11 +119,15 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const gradientColors = isDark 
+    ? ['#1f2937', '#374151', '#4b5563']
+    : ['#1e3a8a', '#3b82f6', '#60a5fa'];
+
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" backgroundColor="#1e3a8a" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar style={isDark ? "light" : "dark"} />
       <LinearGradient
-        colors={['#1e3a8a', '#3b82f6', '#60a5fa']}
+        colors={gradientColors}
         style={styles.fullContainer}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -142,26 +148,34 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
       
       {/* Form Section with White Background */}
       <View style={styles.formContainer}>
-        <View style={styles.formInner}>
+        <View style={[styles.formInner, { backgroundColor: colors.surface }]}>
           <View style={styles.inputContainer}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { 
+                backgroundColor: colors.card, 
+                borderColor: colors.border, 
+                color: colors.text 
+              }]}
               placeholder="Nombre completo"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.placeholder}
               value={formData.name}
               onChangeText={(value) => updateFormData('name', value)}
               autoCapitalize="words"
               autoCorrect={false}
               editable={!isLoading}
             />
-            {errors.name ? <Text style={styles.errorText}>{errors.name}</Text> : null}
+            {errors.name ? <Text style={[styles.errorText, { color: colors.error }]}>{errors.name}</Text> : null}
           </View>
 
           <View style={styles.inputContainer}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { 
+                backgroundColor: colors.card, 
+                borderColor: colors.border, 
+                color: colors.text 
+              }]}
               placeholder="Correo electrónico"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.placeholder}
               value={formData.email}
               onChangeText={(value) => updateFormData('email', value)}
               keyboardType="email-address"
@@ -169,15 +183,19 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               autoCorrect={false}
               editable={!isLoading}
             />
-            {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+            {errors.email ? <Text style={[styles.errorText, { color: colors.error }]}>{errors.email}</Text> : null}
           </View>
 
           <View style={styles.inputContainer}>
             <View style={styles.passwordContainer}>
               <TextInput
-                style={styles.passwordInput}
+                style={[styles.passwordInput, { 
+                  backgroundColor: colors.card, 
+                  borderColor: colors.border, 
+                  color: colors.text 
+                }]}
                 placeholder="Contraseña"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
                 value={formData.password}
                 onChangeText={(value) => updateFormData('password', value)}
                 secureTextEntry={!showPassword}
@@ -192,19 +210,23 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
                 <Ionicons 
                   name={showPassword ? "eye-off" : "eye"} 
                   size={20} 
-                  color="#9ca3af" 
+                  color={colors.placeholder} 
                 />
               </TouchableOpacity>
             </View>
-            {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
+            {errors.password ? <Text style={[styles.errorText, { color: colors.error }]}>{errors.password}</Text> : null}
           </View>
 
           <View style={styles.inputContainer}>
             <View style={styles.passwordContainer}>
               <TextInput
-                style={styles.passwordInput}
+                style={[styles.passwordInput, { 
+                  backgroundColor: colors.card, 
+                  borderColor: colors.border, 
+                  color: colors.text 
+                }]}
                 placeholder="Confirmar contraseña"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
                 value={formData.confirmPassword}
                 onChangeText={(value) => updateFormData('confirmPassword', value)}
                 secureTextEntry={!showConfirmPassword}
@@ -219,16 +241,20 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
                 <Ionicons 
                   name={showConfirmPassword ? "eye-off" : "eye"} 
                   size={20} 
-                  color="#9ca3af" 
+                  color={colors.placeholder} 
                 />
               </TouchableOpacity>
             </View>
-            {errors.confirmPassword ? <Text style={styles.errorText}>{errors.confirmPassword}</Text> : null}
+            {errors.confirmPassword ? <Text style={[styles.errorText, { color: colors.error }]}>{errors.confirmPassword}</Text> : null}
           </View>
 
           {/* Register Button */}
           <TouchableOpacity 
-            style={[styles.registerButton, isLoading && styles.buttonDisabled]} 
+            style={[
+              styles.registerButton, 
+              { backgroundColor: colors.primary },
+              isLoading && { backgroundColor: colors.placeholder }
+            ]} 
             onPress={handleRegister}
             disabled={isLoading}
           >
@@ -245,11 +271,24 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             onPress={handleGoToLogin}
             disabled={isLoading}
           >
-            <Text style={styles.loginTextButtonText}>¿Ya tienes cuenta? Inicia sesión</Text>
+            <Text style={[styles.loginTextButtonText, { color: colors.primary }]}>¿Ya tienes cuenta? Inicia sesión</Text>
           </TouchableOpacity>
 
         </View>
       </View>
+      
+      {/* Theme Button in Top-Right */}
+      <TouchableOpacity
+        style={[styles.topRightThemeButton, { backgroundColor: colors.primary }]}
+        onPress={toggleTheme}
+        disabled={isLoading}
+      >
+        <Ionicons 
+          name={isDark ? 'sunny' : 'moon'} 
+          size={20} 
+          color="white" 
+        />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -257,7 +296,6 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   fullContainer: {
     paddingBottom: 40,
@@ -319,7 +357,6 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   formInner: {
-    backgroundColor: 'white',
     borderRadius: 20,
     padding: 24,
     marginTop: 16,
@@ -337,27 +374,21 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 16,
     fontSize: 16,
-    backgroundColor: '#f9fafb',
-    color: '#374151',
   },
   passwordContainer: {
     position: 'relative',
   },
   passwordInput: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 16,
     paddingRight: 50,
     fontSize: 16,
-    backgroundColor: '#f9fafb',
-    color: '#374151',
   },
   eyeButton: {
     position: 'absolute',
@@ -370,18 +401,15 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   errorText: {
-    color: '#dc3545',
     fontSize: 14,
     marginTop: 4,
   },
   registerButton: {
-    backgroundColor: '#3b82f6',
     paddingVertical: 16,
     borderRadius: 12,
     marginBottom: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#3b82f6',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -389,9 +417,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
-  },
-  buttonDisabled: {
-    backgroundColor: '#9ca3af',
   },
   registerButtonText: {
     color: 'white',
@@ -405,9 +430,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loginTextButtonText: {
-    color: '#3b82f6',
     fontSize: 16,
     fontWeight: '500',
+  },
+  topRightThemeButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    zIndex: 1000,
   },
 });
 

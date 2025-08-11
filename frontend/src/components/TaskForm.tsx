@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Task, CreateTaskData, UpdateTaskData } from '../types/task';
+import { useTheme } from '../context/ThemeContext';
 
 interface TaskFormProps {
   task?: Task;
@@ -27,6 +28,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   onCancel,
   loading = false,
 }) => {
+  const { colors } = useTheme();
   const [formData, setFormData] = useState({
     title: task?.title || '',
     description: task?.description || '',
@@ -179,17 +181,22 @@ const TaskForm: React.FC<TaskFormProps> = ({
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
       <View style={styles.form}>
         {/* Title Field */}
         <View style={styles.fieldContainer}>
-          <Text style={styles.label}>
-            Título <Text style={styles.required}>*</Text>
+          <Text style={[styles.label, { color: colors.text }]}>
+            Título <Text style={[styles.required, { color: colors.error }]}>*</Text>
           </Text>
           <TextInput
             style={[
               styles.input,
-              errors.title && styles.inputError,
+              { 
+                backgroundColor: colors.surface, 
+                borderColor: colors.border, 
+                color: colors.text 
+              },
+              errors.title && { borderColor: colors.error },
             ]}
             value={formData.title}
             onChangeText={(text) => {
@@ -197,20 +204,30 @@ const TaskForm: React.FC<TaskFormProps> = ({
               if (errors.title) setErrors({ ...errors, title: '' });
             }}
             placeholder="Ingresa el título de la tarea"
+            placeholderTextColor={colors.placeholder}
             maxLength={100}
             editable={!loading}
           />
-          {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
+          {errors.title && <Text style={[styles.errorText, { color: colors.error }]}>{errors.title}</Text>}
         </View>
 
         {/* Description Field */}
         <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Descripción</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Descripción</Text>
           <TextInput
-            style={[styles.input, styles.textArea]}
+            style={[
+              styles.input, 
+              styles.textArea, 
+              { 
+                backgroundColor: colors.surface, 
+                borderColor: colors.border, 
+                color: colors.text 
+              }
+            ]}
             value={formData.description}
             onChangeText={(text) => setFormData({ ...formData, description: text })}
             placeholder="Descripción opcional de la tarea"
+            placeholderTextColor={colors.placeholder}
             multiline
             numberOfLines={4}
             maxLength={500}
@@ -221,43 +238,53 @@ const TaskForm: React.FC<TaskFormProps> = ({
         {/* Priority and Type Row */}
         <View style={styles.rowContainer}>
           <View style={styles.halfField}>
-            <Text style={styles.label}>Prioridad</Text>
-            <View style={[styles.pickerContainer, { borderColor: getPriorityColor(formData.priority) }]}>
+            <Text style={[styles.label, { color: colors.text }]}>Prioridad</Text>
+            <View style={[
+              styles.pickerContainer, 
+              { 
+                borderColor: getPriorityColor(formData.priority),
+                backgroundColor: colors.surface
+              }
+            ]}>
               <Picker
                 selectedValue={formData.priority}
                 onValueChange={(value) => setFormData({ ...formData, priority: value })}
                 enabled={!loading}
-                style={styles.picker}
+                style={[styles.picker, { color: colors.text }]}
               >
-                <Picker.Item label="Baja" value="LOW" />
-                <Picker.Item label="Media" value="MEDIUM" />
-                <Picker.Item label="Alta" value="HIGH" />
-                <Picker.Item label="Urgente" value="URGENT" />
-
+                <Picker.Item label="Baja" value="LOW" color={colors.text} />
+                <Picker.Item label="Media" value="MEDIUM" color={colors.text} />
+                <Picker.Item label="Alta" value="HIGH" color={colors.text} />
+                <Picker.Item label="Urgente" value="URGENT" color={colors.text} />
               </Picker>
             </View>
           </View>
 
           <View style={styles.halfField}>
-            <Text style={styles.label}>Tipo</Text>
-            <View style={styles.pickerContainer}>
+            <Text style={[styles.label, { color: colors.text }]}>Tipo</Text>
+            <View style={[
+              styles.pickerContainer,
+              { 
+                backgroundColor: colors.surface,
+                borderColor: colors.border
+              }
+            ]}>
               <Picker
                 selectedValue={formData.type}
                 onValueChange={(value) => setFormData({ ...formData, type: value })}
                 enabled={!loading}
-                style={styles.picker}
+                style={[styles.picker, { color: colors.text }]}
               >
-                <Picker.Item label="Feature" value="FEATURE" />
-                <Picker.Item label="Bug Fix" value="BUG_FIX" />
-                <Picker.Item label="Refactor" value="REFACTOR" />
-                <Picker.Item label="Testing" value="TESTING" />
-                <Picker.Item label="Documentation" value="DOCUMENTATION" />
-                <Picker.Item label="Code Review" value="CODE_REVIEW" />
-                <Picker.Item label="Deployment" value="DEPLOYMENT" />
-                <Picker.Item label="Research" value="RESEARCH" />
-                <Picker.Item label="Optimization" value="OPTIMIZATION" />
-                <Picker.Item label="Maintenance" value="MAINTENANCE" />
-
+                <Picker.Item label="Feature" value="FEATURE" color={colors.text} />
+                <Picker.Item label="Bug Fix" value="BUG_FIX" color={colors.text} />
+                <Picker.Item label="Refactor" value="REFACTOR" color={colors.text} />
+                <Picker.Item label="Testing" value="TESTING" color={colors.text} />
+                <Picker.Item label="Documentation" value="DOCUMENTATION" color={colors.text} />
+                <Picker.Item label="Code Review" value="CODE_REVIEW" color={colors.text} />
+                <Picker.Item label="Deployment" value="DEPLOYMENT" color={colors.text} />
+                <Picker.Item label="Research" value="RESEARCH" color={colors.text} />
+                <Picker.Item label="Optimization" value="OPTIMIZATION" color={colors.text} />
+                <Picker.Item label="Maintenance" value="MAINTENANCE" color={colors.text} />
               </Picker>
             </View>
           </View>
@@ -265,16 +292,22 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
         {/* Date Field */}
         <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Fecha de la tarea</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Fecha de la tarea</Text>
           <TouchableOpacity
-            style={styles.dateButton}
+            style={[
+              styles.dateButton,
+              { 
+                backgroundColor: colors.surface,
+                borderColor: colors.border
+              }
+            ]}
             onPress={() => setShowDatePicker(true)}
             disabled={loading}
           >
-            <Ionicons name="calendar-outline" size={20} color="#666" />
+            <Ionicons name="calendar-outline" size={20} color={colors.placeholder} />
             <Text style={[
               styles.dateButtonText,
-              !formData.taskDate && styles.placeholderText
+              { color: formData.taskDate ? colors.text : colors.placeholder }
             ]}>
               {formatDate(formData.taskDate)}
             </Text>
@@ -283,7 +316,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 onPress={() => setFormData({ ...formData, taskDate: null })}
                 style={styles.clearButton}
               >
-                <Ionicons name="close-circle" size={20} color="#999" />
+                <Ionicons name="close-circle" size={20} color={colors.placeholder} />
               </TouchableOpacity>
             )}
           </TouchableOpacity>
@@ -292,16 +325,22 @@ const TaskForm: React.FC<TaskFormProps> = ({
         {/* Time Fields */}
         <View style={styles.rowContainer}>
           <View style={styles.halfField}>
-            <Text style={styles.label}>Hora de inicio</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Hora de inicio</Text>
             <TouchableOpacity
-              style={styles.timeButton}
+              style={[
+                styles.timeButton,
+                { 
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border
+                }
+              ]}
               onPress={() => setShowStartTimePicker(true)}
               disabled={loading}
             >
-              <Ionicons name="time-outline" size={20} color="#666" />
+              <Ionicons name="time-outline" size={20} color={colors.placeholder} />
               <Text style={[
                 styles.timeButtonText,
-                !formData.startTime && styles.placeholderText
+                { color: formData.startTime ? colors.text : colors.placeholder }
               ]}>
                 {formatTime(formData.startTime)}
               </Text>
@@ -310,23 +349,29 @@ const TaskForm: React.FC<TaskFormProps> = ({
                   onPress={() => setFormData({ ...formData, startTime: null })}
                   style={styles.clearButton}
                 >
-                  <Ionicons name="close-circle" size={16} color="#999" />
+                  <Ionicons name="close-circle" size={16} color={colors.placeholder} />
                 </TouchableOpacity>
               )}
             </TouchableOpacity>
           </View>
 
           <View style={styles.halfField}>
-            <Text style={styles.label}>Hora de fin</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Hora de fin</Text>
             <TouchableOpacity
-              style={styles.timeButton}
+              style={[
+                styles.timeButton,
+                { 
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border
+                }
+              ]}
               onPress={() => setShowEndTimePicker(true)}
               disabled={loading}
             >
-              <Ionicons name="time-outline" size={20} color="#666" />
+              <Ionicons name="time-outline" size={20} color={colors.placeholder} />
               <Text style={[
                 styles.timeButtonText,
-                !formData.endTime && styles.placeholderText
+                { color: formData.endTime ? colors.text : colors.placeholder }
               ]}>
                 {formatTime(formData.endTime)}
               </Text>
@@ -335,27 +380,35 @@ const TaskForm: React.FC<TaskFormProps> = ({
                   onPress={() => setFormData({ ...formData, endTime: null })}
                   style={styles.clearButton}
                 >
-                  <Ionicons name="close-circle" size={16} color="#999" />
+                  <Ionicons name="close-circle" size={16} color={colors.placeholder} />
                 </TouchableOpacity>
               )}
             </TouchableOpacity>
           </View>
         </View>
 
-        {errors.time && <Text style={styles.errorText}>{errors.time}</Text>}
+        {errors.time && <Text style={[styles.errorText, { color: colors.error }]}>{errors.time}</Text>}
 
         {/* Action Buttons */}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
-            style={[styles.button, styles.cancelButton]}
+            style={[
+              styles.button, 
+              styles.cancelButton,
+              { borderColor: colors.border }
+            ]}
             onPress={onCancel}
             disabled={loading}
           >
-            <Text style={styles.cancelButtonText}>Cancelar</Text>
+            <Text style={[styles.cancelButtonText, { color: colors.textSecondary }]}>Cancelar</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, styles.submitButton]}
+            style={[
+              styles.button, 
+              styles.submitButton,
+              { backgroundColor: colors.primary }
+            ]}
             onPress={handleSubmit}
             disabled={loading || !formData.title.trim()}
           >
@@ -401,7 +454,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
   },
   form: {
     padding: 20,
@@ -412,29 +464,26 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 8,
   },
   required: {
-    color: '#FF4444',
+    fontSize: 16,
+    fontWeight: '600',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#DDD',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    backgroundColor: 'white',
   },
   inputError: {
-    borderColor: '#FF4444',
+    borderWidth: 1,
   },
   textArea: {
     height: 100,
     textAlignVertical: 'top',
   },
   errorText: {
-    color: '#FF4444',
     fontSize: 14,
     marginTop: 4,
   },
@@ -448,9 +497,7 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#DDD',
     borderRadius: 8,
-    backgroundColor: 'white',
   },
   picker: {
     height: 50,
@@ -459,34 +506,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#DDD',
     borderRadius: 8,
     padding: 12,
-    backgroundColor: 'white',
   },
   dateButtonText: {
     flex: 1,
     marginLeft: 8,
     fontSize: 16,
-    color: '#333',
   },
   timeButton: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#DDD',
     borderRadius: 8,
     padding: 12,
-    backgroundColor: 'white',
   },
   timeButtonText: {
     flex: 1,
     marginLeft: 8,
     fontSize: 14,
-    color: '#333',
   },
   placeholderText: {
-    color: '#999',
+    fontSize: 16,
   },
   clearButton: {
     padding: 2,
@@ -505,17 +546,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cancelButton: {
-    backgroundColor: 'white',
     borderWidth: 1,
-    borderColor: '#DDD',
   },
   cancelButtonText: {
-    color: '#666',
     fontSize: 16,
     fontWeight: '600',
   },
   submitButton: {
-    backgroundColor: '#007AFF',
+    borderRadius: 8,
   },
   submitButtonText: {
     color: 'white',
