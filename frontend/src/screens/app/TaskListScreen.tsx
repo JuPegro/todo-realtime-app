@@ -2,22 +2,48 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AppStackParamList } from '../../types';
+import { useAuth } from '../../context/AuthContext';
 
 type Props = StackScreenProps<AppStackParamList, 'TaskList'>;
 
 const TaskListScreen: React.FC<Props> = ({ navigation }) => {
+  const { logout, user } = useAuth();
+
   const handleAddTask = () => {
     navigation.navigate('AddTask');
   };
 
   const handleLogout = () => {
-    Alert.alert('Info', 'Logout functionality will be implemented next');
+    Alert.alert(
+      'Cerrar Sesión',
+      '¿Estás seguro que deseas cerrar sesión?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Cerrar Sesión',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              Alert.alert('Error', 'No se pudo cerrar la sesión');
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Mis Tareas</Text>
+        <View>
+          <Text style={styles.title}>Mis Tareas</Text>
+          {user && <Text style={styles.userName}>¡Hola, {user.name}!</Text>}
+        </View>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Salir</Text>
         </TouchableOpacity>
@@ -54,6 +80,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#343a40',
+  },
+  userName: {
+    fontSize: 14,
+    color: '#6c757d',
+    marginTop: 2,
   },
   logoutButton: {
     paddingHorizontal: 16,

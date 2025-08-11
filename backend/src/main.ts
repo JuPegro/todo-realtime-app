@@ -31,9 +31,10 @@ async function bootstrap() {
   const port = configService.get('port') || 3000;
   const environment = configService.get('app.environment');
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   logger.log(`Application is running on: http://localhost:${port}/api`);
+  logger.log(`Also accessible at: http://192.168.68.104:${port}/api`);
   logger.log(`Environment: ${environment}`);
   logger.log(`Global prefix: /api`);
 }

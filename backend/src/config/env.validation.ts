@@ -15,7 +15,6 @@ export class EnvironmentVariables {
   JWT_EXPIRES_IN?: string = '7d';
 
   @Transform(({ value }) => parseInt(value, 10))
-  @IsPort()
   @IsOptional()
   PORT?: number = 3000;
 
@@ -29,7 +28,6 @@ export class EnvironmentVariables {
   POSTGRES_HOST?: string = 'localhost';
 
   @Transform(({ value }) => parseInt(value, 10))
-  @IsPort()
   @IsOptional()
   POSTGRES_PORT?: number = 5432;
 
