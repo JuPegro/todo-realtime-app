@@ -229,7 +229,7 @@ const TaskListScreen: React.FC<TaskListScreenProps> = ({ navigation }) => {
         end={{ x: 1, y: 1 }}
         style={styles.container}
       >
-        <StatusBar style="light" backgroundColor="transparent" translucent />
+        <StatusBar style="light" />
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.headerContent}>
             <TouchableOpacity onPress={handleLogout} style={styles.backButton}>

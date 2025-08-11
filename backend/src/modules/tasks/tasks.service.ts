@@ -88,8 +88,13 @@ export class TasksService {
       endTime: updateTaskDto.endTime ? new Date(updateTaskDto.endTime) : undefined,
     };
 
+    // Si completed es true, establecer completedById
+    if (updateData.completed === true) {
+      updateData.completedById = userId;
+    }
+
     try {
-      return await this.tasksRepository.update(id, updateData, userId);
+      return await this.tasksRepository.update(id, updateData);
     } catch (error) {
       throw new TaskNotFoundException(id);
     }
@@ -97,7 +102,7 @@ export class TasksService {
 
   async remove(id: string, userId: string): Promise<ITask> {
     try {
-      return await this.tasksRepository.delete(id, userId);
+      return await this.tasksRepository.delete(id);
     } catch (error) {
       throw new TaskNotFoundException(id);
     }
