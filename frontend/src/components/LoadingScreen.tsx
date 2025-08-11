@@ -1,13 +1,16 @@
 import React from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 const LoadingScreen: React.FC = () => {
+  const { colors } = useTheme();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
-        <Text style={styles.title}>Realtime Todo</Text>
-        <ActivityIndicator size="large" color="#007bff" style={styles.spinner} />
-        <Text style={styles.subtitle}>Verificando sesión...</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Realtime Todo</Text>
+        <ActivityIndicator size="large" color={colors.primary} style={styles.spinner} />
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Verificando sesión...</Text>
       </View>
     </View>
   );
@@ -16,7 +19,6 @@ const LoadingScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   content: {
     flex: 1,
@@ -28,7 +30,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#343a40',
     marginBottom: 32,
   },
   spinner: {
@@ -36,7 +37,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: '#495057',
     textAlign: 'center',
   },
 });

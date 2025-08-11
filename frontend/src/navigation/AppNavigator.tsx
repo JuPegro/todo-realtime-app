@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import TaskListScreen from '../screens/TaskListScreen';
-import AddTaskScreen from '../screens/AddTaskScreen';
+import TaskListScreen from '../screens/app/TaskListScreen';
+import AddTaskScreen from '../screens/app/AddTaskScreen';
 import EditTaskScreen from '../screens/EditTaskScreen';
 import { AppStackParamList } from '../types';
 

@@ -17,6 +17,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParamList } from '../../types';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -26,6 +27,7 @@ type Props = StackScreenProps<AuthStackParamList, 'Login'>;
 
 const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const { login, isLoading } = useAuth();
+  const { colors, isDark, toggleTheme } = useTheme();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -90,11 +92,15 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const gradientColors = isDark 
+    ? ['#1f2937', '#374151', '#4b5563']
+    : ['#1e3a8a', '#3b82f6', '#60a5fa'];
+
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" backgroundColor="#1e3a8a" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar style={isDark ? "light" : "dark"} />
       <LinearGradient
-        colors={['#1e3a8a', '#3b82f6', '#60a5fa']}
+        colors={gradientColors}
         style={styles.fullContainer}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -113,14 +119,18 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
         </SafeAreaView>
       </LinearGradient>
       
-      {/* Form Section with White Background */}
+      {/* Form Section */}
       <View style={styles.formContainer}>
-        <View style={styles.formInner}>
+        <View style={[styles.formInner, { backgroundColor: colors.surface }]}>
             <View style={styles.inputContainer}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { 
+                backgroundColor: colors.card, 
+                borderColor: colors.border, 
+                color: colors.text 
+              }]}
               placeholder="Correo electrónico"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.placeholder}
               value={formData.email}
               onChangeText={(value) => updateFormData('email', value)}
               keyboardType="email-address"
@@ -133,9 +143,13 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
           <View style={styles.inputContainer}>
             <View style={styles.passwordContainer}>
               <TextInput
-                style={styles.passwordInput}
+                style={[styles.passwordInput, { 
+                  backgroundColor: colors.card, 
+                  borderColor: colors.border, 
+                  color: colors.text 
+                }]}
                 placeholder="Contraseña"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
                 value={formData.password}
                 onChangeText={(value) => updateFormData('password', value)}
                 secureTextEntry={!showPassword}
@@ -150,7 +164,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
                 <Ionicons 
                   name={showPassword ? "eye-off" : "eye"} 
                   size={20} 
-                  color="#9ca3af" 
+                  color={colors.placeholder} 
                 />
               </TouchableOpacity>
             </View>
@@ -162,22 +176,30 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
               style={styles.checkboxContainer}
               onPress={() => setRememberSession(!rememberSession)}
             >
-              <View style={[styles.checkbox, rememberSession && styles.checkboxChecked]}>
+              <View style={[
+                styles.checkbox, 
+                { borderColor: colors.border },
+                rememberSession && { backgroundColor: colors.primary, borderColor: colors.primary }
+              ]}>
                 {rememberSession && (
                   <Ionicons name="checkmark" size={16} color="white" />
                 )}
               </View>
-              <Text style={styles.rememberText}>Recordar sesión</Text>
+              <Text style={[styles.rememberText, { color: colors.textSecondary }]}>Recordar sesión</Text>
             </TouchableOpacity>
             
             <TouchableOpacity>
-              <Text style={styles.forgotText}>¿Olvidó la contraseña?</Text>
+              <Text style={[styles.forgotText, { color: colors.primary }]}>¿Olvidó la contraseña?</Text>
             </TouchableOpacity>
           </View>
 
           {/* Login Button */}
           <TouchableOpacity 
-            style={[styles.loginButton, isLoading && styles.buttonDisabled]} 
+            style={[
+              styles.loginButton, 
+              { backgroundColor: colors.primary },
+              isLoading && { backgroundColor: colors.placeholder }
+            ]} 
             onPress={handleLogin}
             disabled={isLoading}
           >
@@ -190,15 +212,29 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
           {/* Create Account Button */}
           <TouchableOpacity 
-            style={styles.createAccountButton} 
+            style={[styles.createAccountButton, { borderColor: colors.primary }]} 
             onPress={handleGoToRegister}
             disabled={isLoading}
           >
-            <Text style={styles.createAccountText}>Crear una Cuenta</Text>
+            <Text style={[styles.createAccountText, { color: colors.primary }]}>Crear una Cuenta</Text>
           </TouchableOpacity>
+
 
         </View>
       </View>
+      
+      {/* Theme Button in Top-Right */}
+      <TouchableOpacity
+        style={[styles.topRightThemeButton, { backgroundColor: colors.primary }]}
+        onPress={toggleTheme}
+        disabled={isLoading}
+      >
+        <Ionicons 
+          name={isDark ? 'sunny' : 'moon'} 
+          size={20} 
+          color="white" 
+        />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -206,7 +242,6 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   fullContainer: {
     paddingBottom: 40,
@@ -268,7 +303,6 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   formInner: {
-    backgroundColor: 'white',
     borderRadius: 20,
     padding: 24,
     marginTop: 16,
@@ -286,27 +320,21 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 16,
     fontSize: 16,
-    backgroundColor: '#f9fafb',
-    color: '#374151',
   },
   passwordContainer: {
     position: 'relative',
   },
   passwordInput: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 16,
     paddingRight: 50,
     fontSize: 16,
-    backgroundColor: '#f9fafb',
-    color: '#374151',
   },
   eyeButton: {
     position: 'absolute',
@@ -332,33 +360,24 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderWidth: 2,
-    borderColor: '#d1d5db',
     borderRadius: 4,
     marginRight: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkboxChecked: {
-    backgroundColor: '#3b82f6',
-    borderColor: '#3b82f6',
-  },
   rememberText: {
     fontSize: 14,
-    color: '#6b7280',
   },
   forgotText: {
     fontSize: 14,
-    color: '#3b82f6',
     fontWeight: '500',
   },
   loginButton: {
-    backgroundColor: '#3b82f6',
     paddingVertical: 16,
     borderRadius: 12,
     marginBottom: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#3b82f6',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -367,9 +386,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  buttonDisabled: {
-    backgroundColor: '#9ca3af',
-  },
   loginButtonText: {
     color: 'white',
     fontSize: 16,
@@ -377,7 +393,6 @@ const styles = StyleSheet.create({
   },
   createAccountButton: {
     borderWidth: 2,
-    borderColor: '#3b82f6',
     paddingVertical: 16,
     borderRadius: 12,
     marginBottom: 24,
@@ -385,9 +400,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   createAccountText: {
-    color: '#3b82f6',
     fontSize: 16,
     fontWeight: '600',
+  },
+  topRightThemeButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    zIndex: 1000,
   },
 });
 

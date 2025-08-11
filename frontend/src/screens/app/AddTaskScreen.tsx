@@ -1,35 +1,94 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AppStackParamList } from '../../types';
+import { useTheme } from '../../context/ThemeContext';
+import { useTask } from '../../context/TaskContext';
+import TaskForm from '../../components/TaskForm';
+import { CreateTaskData } from '../../types/task';
 
 type Props = StackScreenProps<AppStackParamList, 'AddTask'>;
 
 const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
-  const handleSave = () => {
-    Alert.alert('Info', 'Add task functionality will be implemented next');
+  const { colors, isDark } = useTheme();
+  const { createTask } = useTask();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const gradientColors = isDark 
+    ? ['#1f2937', '#374151', '#4b5563']
+    : ['#1e3a8a', '#3b82f6', '#60a5fa'];
+
+  const handleSubmit = async (taskData: CreateTaskData) => {
+    setIsSubmitting(true);
+    
+    try {
+      const newTask = await createTask(taskData, true); // Enable optimistic updates
+      
+      if (newTask) {
+        Alert.alert(
+          'Tarea Creada',
+          'La tarea ha sido creada exitosamente',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.goBack(),
+            },
+          ]
+        );
+      }
+    } catch (error: any) {
+      console.error('Error creating task:', error);
+      Alert.alert(
+        'Error',
+        error.message || 'No se pudo crear la tarea. Inténtalo de nuevo.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
+    if (isSubmitting) {
+      return;
+    }
+
     navigation.goBack();
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleCancel}>
-          <Text style={styles.cancelText}>Cancelar</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Nueva Tarea</Text>
-        <TouchableOpacity onPress={handleSave}>
-          <Text style={styles.saveText}>Guardar</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar style={isDark ? "light" : "dark"} />
+      <LinearGradient
+        colors={gradientColors}
+        style={styles.gradientHeader}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={handleCancel}
+              disabled={isSubmitting}
+            >
+              <Ionicons name="arrow-back" size={24} color="white" />
+            </TouchableOpacity>
+            
+            <Text style={styles.headerTitle}>Nueva Tarea</Text>
+            
+            <View style={styles.placeholder} />
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
       
-      <View style={styles.content}>
-        <Text style={styles.placeholder}>Formulario para crear tarea</Text>
-        <Text style={styles.placeholderSub}>Se implementará en el siguiente módulo</Text>
-      </View>
+      <TaskForm
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+        loading={isSubmitting}
+      />
     </View>
   );
 };
@@ -37,7 +96,12 @@ const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+  },
+  gradientHeader: {
+    paddingBottom: 20,
+  },
+  safeArea: {
+    flex: 0,
   },
   header: {
     flexDirection: 'row',
@@ -45,40 +109,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 16,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
   },
-  title: {
+  backButton: {
+    padding: 8,
+    marginLeft: -8,
+  },
+  headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#343a40',
-  },
-  cancelText: {
-    color: '#6c757d',
-    fontSize: 16,
-  },
-  saveText: {
-    color: '#007bff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
+    color: 'white',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   placeholder: {
-    fontSize: 18,
-    color: '#6c757d',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  placeholderSub: {
-    fontSize: 14,
-    color: '#adb5bd',
-    textAlign: 'center',
+    width: 40, // Same width as back button for centering
   },
 });
 
