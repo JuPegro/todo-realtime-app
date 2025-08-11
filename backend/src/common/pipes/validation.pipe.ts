@@ -10,11 +10,16 @@ import { plainToClass } from 'class-transformer';
 @Injectable()
 export class GlobalValidationPipe implements PipeTransform<any> {
   async transform(value: any, { metatype }: ArgumentMetadata) {
+    console.log('ValidationPipe - Input value:', value);
+    console.log('ValidationPipe - Metatype:', metatype?.name);
+    
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
 
     const object = plainToClass(metatype, value);
+    console.log('ValidationPipe - Transformed object:', object);
+    
     const errors = await validate(object, {
       whitelist: true,
       transform: true,
@@ -25,7 +30,9 @@ export class GlobalValidationPipe implements PipeTransform<any> {
     });
 
     if (errors.length > 0) {
+      console.log('ValidationPipe - Validation errors:', errors);
       const errorMessages = this.buildErrorMessage(errors);
+      console.log('ValidationPipe - Error messages:', errorMessages);
       throw new BadRequestException({
         error: 'Validation failed',
         message: errorMessages,
