@@ -9,11 +9,18 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  SafeAreaView,
+  Dimensions
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthStackParamList } from '../../types';
 import { useAuth } from '../../context/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+
+const { width, height } = Dimensions.get('window');
 
 type Props = StackScreenProps<AuthStackParamList, 'Login'>;
 
@@ -23,6 +30,8 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     email: '',
     password: '',
   });
+  const [rememberSession, setRememberSession] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({
     email: '',
     password: '',
@@ -71,7 +80,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleGoToRegister = () => {
-    navigation.navigate('Register');
+    navigation.replace('Register');
   };
 
   const updateFormData = (field: string, value: string) => {
@@ -82,154 +91,303 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Realtime Todo</Text>
-          <Text style={styles.subtitle}>Iniciar Sesión</Text>
-          
-          <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Email</Text>
-              <TextInput
-                style={[styles.input, errors.email ? styles.inputError : null]}
-                placeholder="ejemplo@correo.com"
-                value={formData.email}
-                onChangeText={(value) => updateFormData('email', value)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
-              {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+    <View style={styles.container}>
+      <StatusBar style="light" backgroundColor="#1e3a8a" />
+      <LinearGradient
+        colors={['#1e3a8a', '#3b82f6', '#60a5fa']}
+        style={styles.fullContainer}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          {/* Logo Section - Fixed, no scroll */}
+          <View style={styles.logoSectionContent}>
+            <View style={styles.logoContainer}>
+              <View style={styles.logoBackground}>
+                <Ionicons name="flash" size={32} color="white" />
+              </View>
             </View>
-
+            <Text style={styles.logoText}>TaskFlow</Text>
+            <Text style={styles.logoSubtext}>Colabora en tiempo real</Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+      
+      {/* Form Section with White Background */}
+      <View style={styles.formContainer}>
+        <View style={styles.formInner}>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Contraseña</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Correo electrónico"
+              placeholderTextColor="#9ca3af"
+              value={formData.email}
+              onChangeText={(value) => updateFormData('email', value)}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!isLoading}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <View style={styles.passwordContainer}>
               <TextInput
-                style={[styles.input, errors.password ? styles.inputError : null]}
-                placeholder="Ingresa tu contraseña"
+                style={styles.passwordInput}
+                placeholder="Contraseña"
+                placeholderTextColor="#9ca3af"
                 value={formData.password}
                 onChangeText={(value) => updateFormData('password', value)}
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
                 editable={!isLoading}
               />
-              {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
+              <TouchableOpacity 
+                style={styles.eyeButton}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons 
+                  name={showPassword ? "eye-off" : "eye"} 
+                  size={20} 
+                  color="#9ca3af" 
+                />
+              </TouchableOpacity>
             </View>
           </View>
-          
+
+          {/* Remember Session */}
+          <View style={styles.rememberContainer}>
+            <TouchableOpacity 
+              style={styles.checkboxContainer}
+              onPress={() => setRememberSession(!rememberSession)}
+            >
+              <View style={[styles.checkbox, rememberSession && styles.checkboxChecked]}>
+                {rememberSession && (
+                  <Ionicons name="checkmark" size={16} color="white" />
+                )}
+              </View>
+              <Text style={styles.rememberText}>Recordar sesión</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity>
+              <Text style={styles.forgotText}>¿Olvidó la contraseña?</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Login Button */}
           <TouchableOpacity 
-            style={[styles.button, isLoading && styles.buttonDisabled]} 
+            style={[styles.loginButton, isLoading && styles.buttonDisabled]} 
             onPress={handleLogin}
             disabled={isLoading}
           >
             {isLoading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text style={styles.buttonText}>Iniciar Sesión</Text>
+              <Text style={styles.loginButtonText}>Iniciar sesión</Text>
             )}
           </TouchableOpacity>
-          
+
+          {/* Create Account Button */}
           <TouchableOpacity 
-            style={styles.linkButton} 
+            style={styles.createAccountButton} 
             onPress={handleGoToRegister}
             disabled={isLoading}
           >
-            <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
+            <Text style={styles.createAccountText}>Crear una Cuenta</Text>
           </TouchableOpacity>
+
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f5f5f5',
+  },
+  fullContainer: {
+    paddingBottom: 40,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  safeArea: {
+    flex: 0,
   },
   scrollContainer: {
     flexGrow: 1,
   },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
+  logoSectionContent: {
+    alignItems: 'center',
+    paddingVertical: 60,
     paddingHorizontal: 24,
-    paddingVertical: 32,
+    minHeight: height * 0.25,
   },
-  title: {
-    fontSize: 32,
+  logoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    position: 'relative',
+  },
+  logoBackground: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  logoText: {
+    fontSize: 28,
     fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#343a40',
-    marginBottom: 8,
+    color: 'white',
+    letterSpacing: 1.5,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
-  subtitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    textAlign: 'center',
-    color: '#495057',
-    marginBottom: 48,
+  logoSubtext: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginTop: 4,
+    fontWeight: '500',
   },
-  form: {
-    marginBottom: 32,
+  formContainer: {
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    top: height * 0.3,
+    marginTop: -30,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+  },
+  formInner: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 24,
+    marginTop: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#495057',
-    marginBottom: 8,
+    marginBottom: 16,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 8,
-    paddingVertical: 14,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    paddingVertical: 16,
     paddingHorizontal: 16,
     fontSize: 16,
-    backgroundColor: 'white',
+    backgroundColor: '#f9fafb',
+    color: '#374151',
   },
-  inputError: {
-    borderColor: '#dc3545',
+  passwordContainer: {
+    position: 'relative',
   },
-  errorText: {
-    color: '#dc3545',
-    fontSize: 14,
-    marginTop: 4,
-  },
-  button: {
-    backgroundColor: '#007bff',
+  passwordInput: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
     paddingVertical: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-    minHeight: 52,
+    paddingHorizontal: 16,
+    paddingRight: 50,
+    fontSize: 16,
+    backgroundColor: '#f9fafb',
+    color: '#374151',
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 16,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 40,
+    height: '100%',
+  },
+  rememberContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: '#d1d5db',
+    borderRadius: 4,
+    marginRight: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  checkboxChecked: {
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
+  },
+  rememberText: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  forgotText: {
+    fontSize: 14,
+    color: '#3b82f6',
+    fontWeight: '500',
+  },
+  loginButton: {
+    backgroundColor: '#3b82f6',
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#3b82f6',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
   buttonDisabled: {
-    backgroundColor: '#6c757d',
+    backgroundColor: '#9ca3af',
   },
-  buttonText: {
+  loginButtonText: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  linkButton: {
-    paddingVertical: 12,
-  },
-  linkText: {
-    color: '#007bff',
     fontSize: 16,
-    textAlign: 'center',
+    fontWeight: '600',
+  },
+  createAccountButton: {
+    borderWidth: 2,
+    borderColor: '#3b82f6',
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginBottom: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  createAccountText: {
+    color: '#3b82f6',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
