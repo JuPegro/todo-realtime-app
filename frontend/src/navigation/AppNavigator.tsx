@@ -1,11 +1,30 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+import { View, ActivityIndicator } from 'react-native';
 import TaskListScreen from '../screens/app/TaskListScreen';
-import AddTaskScreen from '../screens/app/AddTaskScreen';
-import EditTaskScreen from '../screens/EditTaskScreen';
 import { AppStackParamList } from '../types';
 
+// Lazy loaded screens
+const AddTaskScreen = lazy(() => import('../screens/app/AddTaskScreen'));
+const EditTaskScreen = lazy(() => import('../screens/EditTaskScreen'));
+
 const Stack = createStackNavigator<AppStackParamList>();
+
+// Loading component for lazy screens
+const LazyScreenLoader: React.FC = () => (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
+    <ActivityIndicator size="large" color="#159DD9" />
+  </View>
+);
+
+// HOC to wrap lazy screens with Suspense
+const withLazyScreen = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => {
+  return (props: any) => (
+    <Suspense fallback={<LazyScreenLoader />}>
+      <Component {...props} />
+    </Suspense>
+  );
+};
 
 const AppNavigator: React.FC = () => {
   return (
@@ -18,7 +37,7 @@ const AppNavigator: React.FC = () => {
       <Stack.Screen name="TaskList" component={TaskListScreen} />
       <Stack.Screen 
         name="AddTask" 
-        component={AddTaskScreen}
+        component={withLazyScreen(AddTaskScreen)}
         options={{
           presentation: 'modal',
           animationTypeForReplace: 'push',
@@ -26,7 +45,7 @@ const AppNavigator: React.FC = () => {
       />
       <Stack.Screen 
         name="EditTask" 
-        component={EditTaskScreen}
+        component={withLazyScreen(EditTaskScreen)}
         options={{
           presentation: 'modal',
           animationTypeForReplace: 'push',
