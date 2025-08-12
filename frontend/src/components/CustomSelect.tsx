@@ -7,6 +7,7 @@ import {
   Modal,
   ScrollView,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
@@ -97,6 +98,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         transparent
         animationType="fade"
         onRequestClose={() => setIsVisible(false)}
+        presentationStyle="overFullScreen"
       >
         <TouchableOpacity
           style={styles.modalOverlay}
@@ -185,6 +187,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 14,
     minHeight: 50,
+    overflow: 'hidden',
   },
   selectText: {
     fontSize: 16,
@@ -220,13 +223,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 8,
+    overflow: 'hidden',
   },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: Platform.OS === 'ios' ? 16 : 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0, 0, 0, 0.1)',
   },
@@ -245,7 +249,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: Platform.OS === 'ios' ? 16 : 14,
+    minHeight: Platform.OS === 'ios' ? 48 : 44,
   },
   optionText: {
     fontSize: 16,
