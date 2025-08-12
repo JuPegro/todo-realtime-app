@@ -1,0 +1,84 @@
+services:
+  # PostgreSQL Database for Development
+  postgres:
+    image: postgres:15-alpine
+    container_name: realtime-todo-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: todoapp_dev
+      POSTGRES_USER: JuPegro
+      POSTGRES_PASSWORD: Unicotrofeo1
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U JuPegro -d todoapp_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - todo-network
+
+  # Backend API for Development
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: realtime-todo-backend-dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://JuPegro:Unicotrofeo1@postgres:5432/todoapp_dev
+      JWT_SECRET: dev-jwt-secret-key-not-for-production-12345678901234567890
+      JWT_EXPIRES_IN: 24h
+      PORT: 3000
+      NODE_ENV: development
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: todoapp_dev
+      POSTGRES_USER: JuPegro
+      POSTGRES_PASSWORD: Unicotrofeo1
+      CORS_ORIGIN: "http://localhost:19006,http://localhost:8081,http://192.168.68.104:19006"
+      RATE_LIMIT_TTL: 60
+      RATE_LIMIT_REQUESTS: 1000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - todo-network
+
+  # pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: realtime-todo-pgadmin-dev
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@todoapp.dev
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    networks:
+      - todo-network
+
+volumes:
+  postgres_dev_data:
+
+networks:
+  todo-network:
+    driver: bridge

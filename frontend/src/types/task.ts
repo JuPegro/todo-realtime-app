@@ -2,18 +2,20 @@ export interface Task {
   id: string;
   title: string;
   description?: string;
-  completed: boolean;
-  priority: 'low' | 'medium' | 'high';
-  type: 'personal' | 'work' | 'other';
+  completed?: boolean;
+  status?: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' | 'low' | 'medium' | 'high';
+  type?: 'FEATURE' | 'BUG_FIX' | 'REFACTOR' | 'TESTING' | 'DOCUMENTATION' | 'CODE_REVIEW' | 'DEPLOYMENT' | 'RESEARCH' | 'OPTIMIZATION' | 'MAINTENANCE' | 'personal' | 'work' | 'other';
   taskDate?: string;
   startTime?: string;
   endTime?: string;
-  userId: string;
+  userId?: string;
   completedById?: string;
   completedAt?: string;
   createdAt: string;
   updatedAt: string;
-  user: {
+  createdBy?: string;
+  user?: {
     id: string;
     name: string;
     email: string;
@@ -23,6 +25,8 @@ export interface Task {
     name: string;
     email: string;
   };
+  // Offline support fields
+  isOptimistic?: boolean;
 }
 
 export interface CreateTaskData {

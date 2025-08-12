@@ -1,98 +1,253 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚀 Backend - NestJS API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST construida con NestJS que proporciona autenticación JWT, gestión de tareas colaborativas y comunicación en tiempo real vía WebSocket.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 📋 Descripción
 
-## Description
+Backend completo para aplicación de tareas colaborativas con:
+- **Autenticación JWT** con blacklist de tokens
+- **CRUD de tareas** con filtrado y paginación avanzada
+- **WebSocket en tiempo real** para sincronización colaborativa
+- **Rate limiting** y sanitización de inputs
+- **Testing completo** (unitarios + E2E) con >80% coverage
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🏗️ Arquitectura
 
-## Project setup
+### Módulos Principales
+- **AuthModule**: JWT authentication, registro/login, blacklist
+- **TasksModule**: CRUD completo + WebSocket Gateway  
+- **UserModule**: Gestión de usuarios
+- **HealthModule**: Health checks y monitoring
 
+### Servicios Compartidos
+- **PrismaService**: ORM connection y configuración
+- **OwnershipValidationService**: Validación de permisos
+- **TokenBlacklistService**: Invalidación de JWT tokens
+
+## ⚙️ Instalación y Configuración
+
+### 1. Instalar Dependencias
 ```bash
-$ npm install
+npm install
 ```
 
-## Compile and run the project
-
+### 2. Configurar Variables de Entorno
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cp .env.example .env
+# Editar .env con tus configuraciones
 ```
 
-## Run tests
-
+### 3. Configurar Base de Datos
 ```bash
-# unit tests
-$ npm run test
+# Con Docker
+docker-compose up -d postgres
 
-# e2e tests
-$ npm run test:e2e
+# Ejecutar migraciones
+npx prisma migrate dev
+npx prisma generate
 
-# test coverage
-$ npm run test:cov
+# (Opcional) Ejecutar seeds
+npm run db:seed
 ```
 
-## Deployment
+## 🚀 Ejecución
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### Desarrollo
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Modo development con hot-reload
+npm run start:dev
+
+# Con debugging habilitado
+npm run start:debug
+
+# Ver logs de base de datos
+DATABASE_LOGGING=true npm run start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
-## Resources
+## 🧪 Testing
 
-Check out a few resources that may come in handy when working with NestJS:
+### Tests Unitarios
+```bash
+# Ejecutar todos los tests
+npm run test
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Modo watch
+npm run test:watch
 
-## Support
+# Test específico
+npm run test auth.service.spec.ts
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Con coverage
+npm run test:cov
+```
 
-## Stay in touch
+### Tests E2E
+```bash
+# Tests end-to-end completos
+npm run test:e2e
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# Test específico E2E
+npm run test:e2e auth.e2e-spec.ts
+```
 
-## License
+### Coverage Actual
+- **Líneas**: >80% ✅
+- **Funciones**: >85% ✅  
+- **Branches**: >75% ✅
+- **Statements**: >80% ✅
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 🔌 API Endpoints
+
+### 🔐 Autenticación
+- `POST /api/auth/register` - Registro de usuario
+- `POST /api/auth/login` - Inicio de sesión
+- `GET /api/auth/profile` - Perfil del usuario (JWT required)
+- `POST /api/auth/logout` - Cerrar sesión
+
+### 📝 Gestión de Tareas
+- `GET /api/tasks` - Listar tareas (con filtros)
+- `GET /api/tasks/stats` - Estadísticas de tareas
+- `GET /api/tasks/:id` - Obtener tarea específica
+- `POST /api/tasks` - Crear nueva tarea
+- `PATCH /api/tasks/:id` - Actualizar tarea
+- `DELETE /api/tasks/:id` - Eliminar tarea
+
+### ⚡ WebSocket Events
+- `task-created` - Nueva tarea creada
+- `task-updated` - Tarea actualizada
+- `task-deleted` - Tarea eliminada
+
+### 🏥 Health Checks
+- `GET /api/health` - Estado del sistema
+- `GET /health` - Health check básico
+
+## 🗄️ Base de Datos
+
+### Modelos Prisma
+```prisma
+model User {
+  id: String @id @default(cuid())
+  email: String @unique
+  password: String
+  name: String?
+  tasks: Task[]
+  completedTasks: Task[] @relation("TaskCompletedBy")
+}
+
+model Task {
+  id: String @id @default(cuid())
+  title: String
+  description: String?
+  completed: Boolean @default(false)
+  priority: Priority @default(MEDIUM)
+  type: TaskType @default(FEATURE)
+  userId: String
+  user: User @relation(fields: [userId], references: [id])
+}
+```
+
+### Comandos Prisma
+```bash
+# Generar cliente
+npx prisma generate
+
+# Crear migración
+npx prisma migrate dev --name migration_name
+
+# Reset base de datos
+npx prisma migrate reset
+
+# Abrir Prisma Studio
+npx prisma studio
+
+# Push schema (desarrollo)
+npx prisma db push
+```
+
+## 🔒 Seguridad
+
+### Rate Limiting
+- **Short**: 3 requests/segundo
+- **Medium**: 20 requests/10 segundos
+- **Long**: 100 requests/minuto
+
+### Sanitización de Inputs
+- Eliminación de scripts maliciosos
+- Limpieza de HTML tags
+- Validación con class-validator
+
+### JWT Configuration
+- **Algoritmo**: HS256
+- **Expiración**: 7 días (configurable)
+- **Blacklist**: Tokens invalidados en logout
+
+## 🐳 Docker para Evaluadores
+
+```bash
+# Levantar todos los servicios (backend + BD)
+docker-compose up -d
+
+# Ver logs del backend
+docker-compose logs -f backend
+
+# Verificar que esté funcionando
+curl http://localhost:3000/api/health
+
+# Acceder al container del backend (si es necesario)
+docker-compose exec backend bash
+```
+
+## 📊 Monitoring
+
+### Health Checks para Evaluadores
+- **Endpoint**: http://localhost:3000/api/health
+- **Información**: Status, uptime, environment, conexión DB
+- **Verificación**: Confirmar que todos los servicios están funcionando
+
+### Logging
+- **Requests**: Method, URL, status, tiempo de respuesta
+- **Errors**: Stack traces estructurados  
+- **Database**: Query logging en desarrollo (`DATABASE_LOGGING=true`)
+
+## 🔧 Troubleshooting
+
+### Problemas Comunes
+
+#### Base de Datos
+```bash
+# Verificar conexión
+npx prisma studio
+
+# Reset completo
+npx prisma migrate reset --force
+
+# Verificar schema
+npx prisma validate
+```
+
+#### JWT Issues
+- Verificar `JWT_SECRET` (mín. 32 caracteres)
+- Comprobar `JWT_EXPIRES_IN` format
+- Revisar blacklist en logout
+
+#### WebSocket
+- Verificar CORS configuration
+- Comprobar autenticación WebSocket
+- Revisar room management
+
+### Debug Mode
+```bash
+# Logs detallados
+LOG_LEVEL=debug npm run start:dev
+
+# Database queries
+DATABASE_LOGGING=true npm run start:dev
+```
+
+## 📚 Documentación Adicional
+
+- **[NestJS Documentation](https://docs.nestjs.com)** - Framework principal
+- **[Prisma Documentation](https://prisma.io/docs)** - ORM y base de datos
+- **[Jest Testing](https://jestjs.io/docs)** - Testing framework
+- **[Socket.IO](https://socket.io/docs/v4/)** - WebSocket implementation

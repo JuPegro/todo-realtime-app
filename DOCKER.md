@@ -1,118 +1,205 @@
-# Docker Setup - Realtime Todo App
+# Docker Commands - Realtime Todo App
 
-Este proyecto utiliza Docker para una configuración fácil del entorno de desarrollo.
+## 🐳 Docker Configuration
 
-## Quick Start
+### Archivo Principal
+- `docker-compose.yml` - Configuración completa con Backend, PostgreSQL y pgAdmin
 
-1. **Levantar todos los servicios:**
-   ```bash
-   docker-compose up -d
-   ```
+## 🚀 Quick Start
 
-2. **Ver logs en tiempo real:**
-   ```bash
-   docker-compose logs -f
-   ```
+### Default Environment
+```bash
+# Start basic services
+docker-compose up -d
 
-3. **Aplicar migraciones de base de datos (si es necesario):**
-   ```bash
-   docker-compose exec backend npx prisma migrate deploy
-   ```
+# View logs
+docker-compose logs -f
 
-## Servicios Incluidos
+# Apply migrations
+docker-compose exec backend npx prisma migrate deploy
+```
+
+### Development Environment
+```bash
+# Start development environment with hot reload
+docker-compose -f docker-compose.dev.yml up -d
+
+# View development logs
+docker-compose -f docker-compose.dev.yml logs -f backend
+```
+
+
+## 📦 Services Configuration
 
 ### PostgreSQL Database
-- **Puerto:** 5432
-- **Usuario:** JuPegro
-- **Contraseña:** Unicotrofeo1
-- **Base de datos:** todoapp
+- **Port:** 5432
+- **User:** JuPegro
+- **Password:** Unicotrofeo1
+- **Database:** todoapp (dev: todoapp_dev, prod: configurable)
 - **Container:** `realtime-todo-postgres`
 
 ### pgAdmin (Database Management)
 - **URL:** http://localhost:8080
 - **Email:** admin@todoapp.com
-- **Contraseña:** admin123
+- **Password:** admin123
 - **Container:** `realtime-todo-pgadmin`
 
 ### Backend API (NestJS)
 - **URL:** http://localhost:3000
 - **Container:** `realtime-todo-backend`
-- **Health Check:** http://localhost:3000/health
+- **Health Check:** http://localhost:3000/api/health
 
-## Comandos Útiles
 
-### Desarrollo
+## 🛠️ Development Commands
+
+### Start/Stop Services
 ```bash
-# Levantar solo la base de datos
+# Start only database services
 docker-compose up postgres pgadmin -d
 
-# Rebuild del backend
-docker-compose up --build backend
+# Start development environment with hot reload
+docker-compose -f docker-compose.dev.yml up -d
 
-# Ver logs de un servicio específico
-docker-compose logs -f backend
-```
+# Rebuild specific service
+docker-compose build --no-cache backend
 
-### Mantenimiento
-```bash
-# Parar todos los servicios
+# Stop all services
 docker-compose down
 
-# Parar y eliminar volúmenes
-docker-compose down -v
-
-# Limpiar containers y volúmenes
+# Stop and remove volumes
 docker-compose down -v --remove-orphans
 ```
 
-### Base de Datos
+### Logs and Monitoring
 ```bash
-# Ejecutar migraciones
-docker-compose exec backend npx prisma migrate deploy
+# View logs of specific service
+docker-compose logs -f backend
 
-# Ver estado de la base de datos
+# Monitor resource usage
+docker stats
+
+# Check service status
+docker-compose ps
+```
+
+
+## 💾 Database Management
+
+### Development Database
+```bash
+# Run migrations
+docker-compose exec backend npx prisma migrate dev
+
+# Reset database
+docker-compose exec backend npx prisma migrate reset
+
+# Open Prisma Studio
 docker-compose exec backend npx prisma studio
 
-# Hacer backup de la base de datos
-docker-compose exec postgres pg_dump -U JuPegro todoapp > backup.sql
+# Generate Prisma client
+docker-compose exec backend npx prisma generate
 ```
 
-## Configuración
 
-Las variables de entorno están configuradas en:
-- `backend/.env` - Para desarrollo local
-- `backend/.env.docker` - Para contenedores Docker
-- `docker-compose.yml` - Variables del compose
-
-## Health Checks
-
-El backend incluye health checks automáticos:
-- **Intervalo:** 30 segundos
-- **Timeout:** 3 segundos
-- **Endpoint:** http://localhost:3000/health
-
-## Troubleshooting
-
-### La base de datos no se conecta
+### Database Access
 ```bash
-# Verificar que PostgreSQL esté corriendo
-docker-compose ps
+# Access PostgreSQL container (development)
+docker exec -it realtime-todo-postgres-dev psql -U JuPegro -d todoapp_dev
 
-# Ver logs de PostgreSQL
+# Check database connection
+docker exec realtime-todo-postgres pg_isready -U JuPegro -d todoapp
+```
+
+## 🔧 Maintenance Commands
+
+### Container Management
+```bash
+# Remove unused containers
+docker container prune
+
+# Remove unused images
+docker image prune -a
+
+# Remove unused volumes
+docker volume prune
+
+# Complete system cleanup
+docker system prune -a --volumes
+```
+
+### Updates and Rebuilds
+```bash
+# Pull latest images
+docker-compose pull
+
+# Rebuild without cache
+docker-compose build --no-cache
+
+# Update and restart services
+docker-compose up -d --build
+```
+
+## 📊 Debugging and Troubleshooting
+
+### Container Debugging
+```bash
+# Access backend container shell
+docker-compose exec backend sh
+
+# Check container processes
+docker-compose exec backend ps aux
+
+# View container environment
+docker-compose exec backend env
+```
+
+### Health Checks and Testing
+```bash
+# Test API endpoints
+curl -f http://localhost:3000/api/health
+curl -f http://localhost:3000/api/auth/test
+
+# Check database connection from backend
+docker-compose exec backend npx prisma db pull
+
+# Test WebSocket connection
+curl --include --no-buffer --header "Connection: Upgrade" --header "Upgrade: websocket" --header "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" --header "Sec-WebSocket-Version: 13" http://localhost:3000/socket.io/
+```
+
+### Common Issues
+```bash
+# Database connection issues
 docker-compose logs postgres
-```
-
-### El backend no inicia
-```bash
-# Ver logs detallados
-docker-compose logs backend
-
-# Verificar migraciones
 docker-compose exec backend npx prisma migrate status
+
+# Backend startup issues
+docker-compose logs backend
+docker-compose exec backend npm run build
+
+# Port conflicts
+docker-compose ps
+netstat -tulpn | grep :3000
 ```
 
-### Puertos ocupados
-Si algún puerto está ocupado, puedes cambiarlos en `docker-compose.yml`:
-- PostgreSQL: `5432:5432`
-- pgAdmin: `8080:80`  
-- Backend: `3000:3000`
+## 🌍 Environment Configuration
+
+### Variables de Entorno para Evaluadores
+```bash
+# Configuración básica (ya incluida en docker-compose.yml)
+POSTGRES_USER=JuPegro
+POSTGRES_PASSWORD=Unicotrofeo1
+POSTGRES_DB=todoapp
+JWT_SECRET=your-super-secret-jwt-key-min-32-chars
+```
+
+### Archivos de Configuración
+- `backend/.env` - Variables locales de desarrollo
+- `backend/.env.example` - Plantilla con todas las variables
+- `docker-compose.yml` - Configuración principal para evaluación
+
+## 🔐 Notas de Seguridad para Evaluadores
+
+- Las credenciales por defecto están configuradas para facilitar la evaluación
+- JWT secret incluido para testing (cambiar en uso real)
+- CORS configurado para desarrollo local
+

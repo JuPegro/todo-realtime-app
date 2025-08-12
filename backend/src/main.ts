@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { GlobalValidationPipe } from './common/pipes/validation.pipe';
+import { SanitizationPipe } from './common/pipes/sanitization.pipe';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
@@ -19,12 +20,24 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // Global Pipes
-  app.useGlobalPipes(new GlobalValidationPipe());
+  app.useGlobalPipes(
+    new SanitizationPipe(),
+    new GlobalValidationPipe(),
+  );
 
   // CORS Configuration
+  const corsOrigin = configService.get('cors.origin');
+  const isDevelopment = configService.get('app.isDevelopment');
+  
   app.enableCors({
-    origin: configService.get('cors.origin'),
+    origin: isDevelopment 
+      ? ['http://localhost:19006', 'http://localhost:8081', 'http://192.168.68.104:19006', corsOrigin] 
+      : corsOrigin,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   // Global Prefix
