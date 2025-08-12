@@ -9,6 +9,15 @@ dist/
 web-build/
 expo-env.d.ts
 
+# android
+*.apk
+*.ap_
+*.dex
+*.class
+*.jar
+*.keystore
+android/
+
 # Native
 .kotlin/
 *.orig.*

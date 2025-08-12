@@ -29,7 +29,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   onCancel,
   loading = false,
 }) => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   // Priority options
   const priorityOptions: SelectOption[] = [
@@ -167,6 +167,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     setShowEndTimePicker(false);
   };
 
+
   const formatDate = (date: Date | null) => {
     if (!date) return 'Seleccionar fecha';
     return date.toLocaleDateString('es-ES', {
@@ -178,9 +179,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   const formatTime = (time: Date | null) => {
     if (!time) return 'Seleccionar hora';
-    return time.toLocaleTimeString('es-ES', {
+    return time.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
+      hour12: true,
     });
   };
 
@@ -422,25 +424,54 @@ const TaskForm: React.FC<TaskFormProps> = ({
       <DateTimePickerModal
         isVisible={showDatePicker}
         mode="date"
+        display="spinner"
         onConfirm={handleDateChange}
         onCancel={handleDateCancel}
         minimumDate={new Date()}
+        isDarkModeEnabled={isDark}
+        pickerStyleIOS={{
+          backgroundColor: colors.surface,
+        }}
+        modalStyleIOS={{
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}
+        textColor={colors.text}
       />
 
       {/* Start Time Picker */}
       <DateTimePickerModal
         isVisible={showStartTimePicker}
         mode="time"
+        display="spinner"
         onConfirm={handleStartTimeChange}
         onCancel={handleStartTimeCancel}
+        isDarkModeEnabled={isDark}
+        pickerStyleIOS={{
+          backgroundColor: colors.surface,
+        }}
+        modalStyleIOS={{
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}
+        textColor={colors.text}
+        is24Hour={false}
       />
 
       {/* End Time Picker */}
       <DateTimePickerModal
         isVisible={showEndTimePicker}
         mode="time"
+        display="spinner"
         onConfirm={handleEndTimeChange}
         onCancel={handleEndTimeCancel}
+        isDarkModeEnabled={isDark}
+        pickerStyleIOS={{
+          backgroundColor: colors.surface,
+        }}
+        modalStyleIOS={{
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}
+        textColor={colors.text}
+        is24Hour={false}
       />
     </ScrollView>
   );
