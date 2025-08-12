@@ -3,10 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -126,7 +126,7 @@ const EditTaskScreen: React.FC<EditTaskScreenProps> = ({ navigation, route }) =>
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-          <SafeAreaView style={styles.safeArea}>
+          <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
             <View style={styles.header}>
               <TouchableOpacity
                 style={styles.backButton}

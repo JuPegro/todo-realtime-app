@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   RefreshControl,
   TextInput,
-  SafeAreaView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -230,7 +230,7 @@ const TaskListScreen: React.FC<TaskListScreenProps> = ({ navigation }) => {
         style={styles.container}
       >
         <StatusBar style="light" />
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
           <View style={styles.headerContent}>
             <TouchableOpacity onPress={handleLogout} style={styles.backButton}>
               <Ionicons name="menu" size={24} color="white" />

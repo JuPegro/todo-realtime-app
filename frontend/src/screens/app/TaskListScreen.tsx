@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, SafeAreaView, FlatList, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, FlatList, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -147,15 +148,27 @@ const TaskListScreen: React.FC<Props> = ({ navigation }) => {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
           <View style={styles.header}>
             <View>
               <Text style={styles.title}>Mis Tareas</Text>
               {user && <Text style={styles.userName}>¡Hola, {user.name}!</Text>}
             </View>
-            <TouchableOpacity style={[styles.logoutButton, { backgroundColor: colors.error }]} onPress={handleLogout}>
-              <Text style={styles.logoutText}>Salir</Text>
-            </TouchableOpacity>
+            <View style={styles.headerButtons}>
+              <TouchableOpacity 
+                style={[styles.themeButton, { backgroundColor: colors.primary }]} 
+                onPress={toggleTheme}
+              >
+                <Ionicons 
+                  name={isDark ? 'sunny' : 'moon'} 
+                  size={18} 
+                  color="white" 
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.logoutButton, { backgroundColor: colors.error }]} onPress={handleLogout}>
+                <Text style={styles.logoutText}>Salir</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </SafeAreaView>
       </LinearGradient>
@@ -294,18 +307,6 @@ const TaskListScreen: React.FC<Props> = ({ navigation }) => {
       <TouchableOpacity style={[styles.fab, { backgroundColor: colors.primary, shadowColor: colors.text }]} onPress={handleAddTask}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
-      
-      {/* Theme Button in Top-Right */}
-      <TouchableOpacity
-        style={[styles.topRightThemeButton, { backgroundColor: colors.primary, shadowColor: colors.text }]}
-        onPress={toggleTheme}
-      >
-        <Ionicons 
-          name={isDark ? 'sunny' : 'moon'} 
-          size={20} 
-          color="white" 
-        />
-      </TouchableOpacity>
     </View>
   );
 };
@@ -340,6 +341,25 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.9)',
     marginTop: 2,
     fontWeight: '500',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  themeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   logoutButton: {
     paddingHorizontal: 16,
@@ -525,24 +545,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 24,
     fontWeight: '600',
-  },
-  topRightThemeButton: {
-    position: 'absolute',
-    top: 10,
-    right: 20,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 4,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    zIndex: 1000,
   },
 });
 

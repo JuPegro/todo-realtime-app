@@ -3,10 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTask } from '../context/TaskContext';
 import TaskForm from '../components/TaskForm';
@@ -62,7 +62,7 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ navigation }) => {
 
   return (
     <ErrorBoundary>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}

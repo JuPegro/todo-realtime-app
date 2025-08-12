@@ -10,10 +10,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Task, CreateTaskData, UpdateTaskData } from '../types/task';
 import { useTheme } from '../context/ThemeContext';
+import CustomSelect, { SelectOption } from './CustomSelect';
 
 interface TaskFormProps {
   task?: Task;
@@ -29,6 +29,28 @@ const TaskForm: React.FC<TaskFormProps> = ({
   loading = false,
 }) => {
   const { colors } = useTheme();
+
+  // Priority options
+  const priorityOptions: SelectOption[] = [
+    { label: 'Baja', value: 'LOW' },
+    { label: 'Media', value: 'MEDIUM' },
+    { label: 'Alta', value: 'HIGH' },
+    { label: 'Urgente', value: 'URGENT' },
+  ];
+
+  // Type options
+  const typeOptions: SelectOption[] = [
+    { label: 'Feature', value: 'FEATURE' },
+    { label: 'Bug Fix', value: 'BUG_FIX' },
+    { label: 'Refactor', value: 'REFACTOR' },
+    { label: 'Testing', value: 'TESTING' },
+    { label: 'Documentation', value: 'DOCUMENTATION' },
+    { label: 'Code Review', value: 'CODE_REVIEW' },
+    { label: 'Deployment', value: 'DEPLOYMENT' },
+    { label: 'Research', value: 'RESEARCH' },
+    { label: 'Optimization', value: 'OPTIMIZATION' },
+    { label: 'Maintenance', value: 'MAINTENANCE' },
+  ];
   const [formData, setFormData] = useState({
     title: task?.title || '',
     description: task?.description || '',
@@ -239,54 +261,26 @@ const TaskForm: React.FC<TaskFormProps> = ({
         <View style={styles.rowContainer}>
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: colors.text }]}>Prioridad</Text>
-            <View style={[
-              styles.pickerContainer, 
-              { 
+            <CustomSelect
+              value={formData.priority}
+              options={priorityOptions}
+              onValueChange={(value) => setFormData({ ...formData, priority: value as any })}
+              disabled={loading}
+              style={{
                 borderColor: getPriorityColor(formData.priority),
-                backgroundColor: colors.surface
-              }
-            ]}>
-              <Picker
-                selectedValue={formData.priority}
-                onValueChange={(value) => setFormData({ ...formData, priority: value })}
-                enabled={!loading}
-                style={[styles.picker, { color: colors.text }]}
-              >
-                <Picker.Item label="Baja" value="LOW" color={colors.text} />
-                <Picker.Item label="Media" value="MEDIUM" color={colors.text} />
-                <Picker.Item label="Alta" value="HIGH" color={colors.text} />
-                <Picker.Item label="Urgente" value="URGENT" color={colors.text} />
-              </Picker>
-            </View>
+                borderWidth: 2,
+              }}
+            />
           </View>
 
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: colors.text }]}>Tipo</Text>
-            <View style={[
-              styles.pickerContainer,
-              { 
-                backgroundColor: colors.surface,
-                borderColor: colors.border
-              }
-            ]}>
-              <Picker
-                selectedValue={formData.type}
-                onValueChange={(value) => setFormData({ ...formData, type: value })}
-                enabled={!loading}
-                style={[styles.picker, { color: colors.text }]}
-              >
-                <Picker.Item label="Feature" value="FEATURE" color={colors.text} />
-                <Picker.Item label="Bug Fix" value="BUG_FIX" color={colors.text} />
-                <Picker.Item label="Refactor" value="REFACTOR" color={colors.text} />
-                <Picker.Item label="Testing" value="TESTING" color={colors.text} />
-                <Picker.Item label="Documentation" value="DOCUMENTATION" color={colors.text} />
-                <Picker.Item label="Code Review" value="CODE_REVIEW" color={colors.text} />
-                <Picker.Item label="Deployment" value="DEPLOYMENT" color={colors.text} />
-                <Picker.Item label="Research" value="RESEARCH" color={colors.text} />
-                <Picker.Item label="Optimization" value="OPTIMIZATION" color={colors.text} />
-                <Picker.Item label="Maintenance" value="MAINTENANCE" color={colors.text} />
-              </Picker>
-            </View>
+            <CustomSelect
+              value={formData.type}
+              options={typeOptions}
+              onValueChange={(value) => setFormData({ ...formData, type: value as any })}
+              disabled={loading}
+            />
           </View>
         </View>
 
@@ -494,13 +488,6 @@ const styles = StyleSheet.create({
   },
   halfField: {
     flex: 0.48,
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderRadius: 8,
-  },
-  picker: {
-    height: 50,
   },
   dateButton: {
     flexDirection: 'row',
